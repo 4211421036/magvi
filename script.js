@@ -1,4 +1,5 @@
 // Global variables
+let prevAffected = new Set();
 let magneticChart;
 let autoSpeakEnabled = false;
 let lastValue = 0;
@@ -130,29 +131,40 @@ function handleAutoSpeakToggle() {
   }
 }
 
-// === fungsi yang diubah untuk efek “kutub magnet” ===
 function updateMagnetViz(B) {
-  // scale jarak: berapa kolom terpengaruh per Tesla
-  const colRange = Math.min(Math.abs(B) * 5, COLS);
-  const maxAngle = 90;     // sudut maksimal di kutub
-  const maxShift = 8;      // px pergerakan maksimal
+  const colRange  = Math.min(Math.abs(B) * 5, COLS);
+  const sign      = B >= 0 ? 1 : -1;
+  const newAffected = new Set();
 
   vizItems.forEach((el, idx) => {
+    // hitung jarak kolom ke kutub (+ kiri, – kanan)
     const col = idx % COLS;
-    // tentukan jarak dari kutub (+ di kiri, – di kanan)
-    const d = B >= 0 ? col : (COLS - 1 - col);
+    const d   = B >= 0 ? col : (COLS - 1 - col);
 
     if (d <= colRange) {
-      const t = 1 - d/colRange;      // t=1 di kutub, →0 menjauh
-      const ang = (B>=0?1:-1) * maxAngle * t;
-      const dx  = (B>=0?-1:1) * maxShift * t;
-      el.style.transform = `translateX(${dx}px) rotate(${ang}deg)`;
-    } else {
-      // di luar jangkauan: reset
-      el.style.transform = `translateX(0px) rotate(0deg)`;
+      newAffected.add(el);
+      const t   = 1 - d/colRange;         // strength 1→0
+      const ang = sign * maxAngle * t;
+      const dx  = -sign * maxShift * t;
+
+      // atur delay berdasarkan d, supaya berurutan
+      setTimeout(() => {
+        el.style.transform = `translateX(${dx}px) rotate(${ang}deg)`;
+      }, d * 80);  // 80ms per langkah, kamu bisa tweak
+    }
+    else if (prevAffected.has(el)) {
+      // kalau dulu aktif, sekarang harus reset
+      // delay sedikit agar urut setelah yang aktif terakhir
+      setTimeout(() => {
+        el.style.transform = `translateX(0px) rotate(0deg)`;
+      }, (colRange + 1) * 80);
     }
   });
+
+  // update state untuk deteksi span mana yang harus di-reset
+  prevAffected = newAffected;
 }
+
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
