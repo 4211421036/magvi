@@ -125,29 +125,29 @@ function handleAutoSpeakToggle() {
 function updateMagnetViz(B) {
   const colRange = Math.min(Math.abs(B)*5, COLS);
   const sign     = B>=0? 1 : -1;
-  const duration = 2;      // durasi satu siklus (detik)
-  const interval = 0.2;    // delay antar-kolom (detik)
+  const duration = 2;      // durasi 2 detik
+  const interval = 0.2;    // 0.2s delay antar-kolom
 
   vizItems.forEach((el, idx) => {
     const col = idx % COLS;
     const d   = sign>0? col : (COLS-1-col);
 
     if (d <= colRange) {
-      const t   = 1 - d/colRange;
-      const ang = sign * maxAngle * t;
-      const dx  = -sign * maxShift * t;
+      const t     = 1 - d/colRange;
+      const ang   = sign * maxAngle * t;
+      const dx    = -sign * maxShift * t;
       const delay = d * interval;
 
       el.style.setProperty('--ang', `${ang}deg`);
       el.style.setProperty('--dx',  `${dx}px`);
-      el.style.setProperty('--delay', `${delay}s`);
-      el.style.setProperty('--duration', `${duration}s`);
+      el.style.setProperty('--delay', `${delay}s`);      // <— satuan "s"
+      el.style.setProperty('--duration', `${duration}s`); // <— satuan "s"
     } else {
-      // di luar jangkauan: non-aktifkan animasi
+      // reset ke default
       el.style.setProperty('--ang', `0deg`);
       el.style.setProperty('--dx',  `0px`);
       el.style.setProperty('--delay', `0s`);
-      el.style.setProperty('--duration', `0s`);
+      el.style.setProperty('--duration', `2s`);
     }
   });
 }
