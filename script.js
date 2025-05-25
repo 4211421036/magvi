@@ -8,7 +8,7 @@ const speechSynthesis = window.speechSynthesis;
 const magneticValueEl = document.getElementById('magneticValue');
 const lastUpdateEl = document.getElementById('lastUpdate');
 const speakBtn = document.getElementById('speakBtn');
-const toggleAutoSpeak = document.getElementById('toggleAutoSpeak');
+const toggleAutoSpeakBtn = document.getElementById('toggleAutoSpeak'); // Ubah nama variabel
 const sensorTypeEl = document.getElementById('sensorType');
 const analogPinEl = document.getElementById('analogPin');
 const uptimeEl = document.getElementById('uptime');
@@ -59,7 +59,7 @@ function initChart() {
 // Fetch data from GitHub
 async function fetchData() {
     try {
-        const response = await fetch('https://raw.githubusercontent.com/4211421036/magvi/main/magnet_data.json');
+        const response = await fetch('https://raw.githubusercontent.com/4211421036/flowsense/main/magnet_data.json');
         
         if (!response.ok) {
             throw new Error('Failed to fetch data');
@@ -78,16 +78,16 @@ function processData(data) {
     if (!data) return;
     
     // Update configuration info
-    sensorTypeEl.textContent = data.config.sensorType;
-    analogPinEl.textContent = data.config.analogPin;
-    uptimeEl.textContent = data.uptime;
+    sensorTypeEl.textContent = data.config.sensorType || 'Magnetometer';
+    analogPinEl.textContent = data.config.analogPin || 'A0';
+    uptimeEl.textContent = data.uptime || '0';
     
     // Get the latest reading
-    const readings = data.readings;
+    const readings = data.readings || [];
     if (readings.length === 0) return;
     
     const latestReading = readings[readings.length - 1];
-    const currentValue = latestReading.magneticField;
+    const currentValue = parseFloat(latestReading.magneticField) || 0;
     
     // Update value display
     magneticValueEl.textContent = currentValue.toFixed(6) + ' T';
@@ -119,11 +119,11 @@ function updateChart(readings) {
     const displayReadings = readings.slice(-20);
     
     const labels = displayReadings.map(reading => {
-        const date = new Date(reading.timestamp * 1000);
+        const date = new Date((reading.timestamp || 0) * 1000);
         return date.toLocaleTimeString();
     });
     
-    const data = displayReadings.map(reading => reading.magneticField);
+    const data = displayReadings.map(reading => parseFloat(reading.magneticField) || 0);
     
     magneticChart.data.labels = labels;
     magneticChart.data.datasets[0].data = data;
@@ -142,11 +142,11 @@ function updateTable(readings) {
         const row = document.createElement('tr');
         
         const timeCell = document.createElement('td');
-        const date = new Date(reading.timestamp * 1000);
+        const date = new Date((reading.timestamp || 0) * 1000);
         timeCell.textContent = date.toLocaleTimeString();
         
         const valueCell = document.createElement('td');
-        valueCell.textContent = reading.magneticField.toFixed(6);
+        valueCell.textContent = (parseFloat(reading.magneticField) || 0).toFixed(6);
         
         row.appendChild(timeCell);
         row.appendChild(valueCell);
@@ -156,6 +156,13 @@ function updateTable(readings) {
 
 // Speak the current value
 function speakValue(value) {
+    // Check if speech synthesis is supported
+    if (!speechSynthesis) {
+        console.warn('Text-to-speech not supported in this browser');
+        return;
+    }
+    
+    // Cancel any ongoing speech
     if (speechSynthesis.speaking) {
         speechSynthesis.cancel();
     }
@@ -165,30 +172,32 @@ function speakValue(value) {
     utterance.rate = 0.9;
     utterance.pitch = 1;
     
+    // Handle potential errors
+    utterance.onerror = (event) => {
+        console.error('Speech synthesis error:', event);
+    };
+    
     speechSynthesis.speak(utterance);
 }
 
-// Toggle auto-speak
-function toggleAutoSpeak() {
+// Toggle auto-speak function
+function toggleAutoSpeakFunction() {
     autoSpeakEnabled = !autoSpeakEnabled;
     
-    const button = document.getElementById('toggleAutoSpeak');
     if (autoSpeakEnabled) {
-        button.textContent = ' Auto-Read: ON';
-        button.classList.add('auto-speak-on');
-        button.classList.remove('btn-outline-primary');
-        button.classList.add('btn-primary');
+        toggleAutoSpeakBtn.innerHTML = '<i class="bi bi-megaphone"></i> Auto-Read: ON';
+        toggleAutoSpeakBtn.classList.add('auto-speak-on');
+        toggleAutoSpeakBtn.classList.remove('btn-outline-primary');
+        toggleAutoSpeakBtn.classList.add('btn-primary');
         
         // Speak the current value when enabling
-        const currentValue = parseFloat(magneticValueEl.textContent);
-        if (!isNaN(currentValue)) {
-            speakValue(currentValue);
-        }
+        const currentValue = parseFloat(magneticValueEl.textContent) || 0;
+        speakValue(currentValue);
     } else {
-        button.textContent = ' Auto-Read: OFF';
-        button.classList.remove('auto-speak-on');
-        button.classList.add('btn-outline-primary');
-        button.classList.remove('btn-primary');
+        toggleAutoSpeakBtn.innerHTML = '<i class="bi bi-megaphone"></i> Auto-Read: OFF';
+        toggleAutoSpeakBtn.classList.remove('auto-speak-on');
+        toggleAutoSpeakBtn.classList.add('btn-outline-primary');
+        toggleAutoSpeakBtn.classList.remove('btn-primary');
     }
 }
 
@@ -206,11 +215,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Button event listeners
     speakBtn.addEventListener('click', () => {
-        const currentValue = parseFloat(magneticValueEl.textContent);
-        if (!isNaN(currentValue)) {
-            speakValue(currentValue);
-        }
+        const currentValue = parseFloat(magneticValueEl.textContent) || 0;
+        speakValue(currentValue);
     });
     
-    toggleAutoSpeak.addEventListener('click', toggleAutoSpeak);
+    toggleAutoSpeakBtn.addEventListener('click', toggleAutoSpeakFunction);
 });
