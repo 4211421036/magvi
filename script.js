@@ -5,9 +5,9 @@ let lastValue = 0;
 const speechSynthesis = window.speechSynthesis;
 
 // Visualization constants
-const COLS     = 9;    // grid 9×9
-const maxAngle = 90;   // rotasi maksimal di kutub (°)
-const maxShift = 8;    // pergeseran horizontal maksimal (px)
+const COLS      = 9;    // grid 9×9
+const maxAngle  = 90;   // sudut maksimal di kutub (°)
+const maxShift  = 8;    // geser horizontal maksimal (px)
 
 // DOM Elements
 const magneticValueEl    = document.getElementById('magneticValue');
@@ -19,15 +19,15 @@ const analogPinEl        = document.getElementById('analogPin');
 const uptimeEl           = document.getElementById('uptime');
 const dataTableEl        = document.getElementById('dataTable');
 
-// --- inisialisasi magnet visualization (9×9 grid) ---
+// --- init grid span (9×9) ---
 const vizWrapper = document.getElementById('magnetViz');
 for (let i = 0; i < COLS * COLS; i++) {
   const span = document.createElement('span');
-  // tambahkan animasi css via variable
-  span.style.setProperty('--dx',  '0px');
+  // set default CSS vars
+  span.style.setProperty('--dx', '0px');
   span.style.setProperty('--ang', '0deg');
   span.style.setProperty('--delay', '0s');
-  span.style.setProperty('--duration', '0s');
+  span.style.setProperty('--duration', '2s');
   vizWrapper.appendChild(span);
 }
 const vizItems = Array.from(vizWrapper.querySelectorAll('span'));
@@ -43,8 +43,10 @@ function initChart() {
       borderColor:'rgba(75,192,192,1)', backgroundColor:'rgba(75,192,192,0.2)'
     }]},
     options: { responsive:true, animation:{duration:1000},
-      scales:{ y:{beginAtZero:false, title:{display:true,text:'Tesla (T)'}},
-               x:{ title:{display:true,text:'Time'}}}
+      scales:{
+        y:{beginAtZero:false, title:{display:true,text:'Tesla (T)'}},
+        x:{ title:{display:true,text:'Time'}}
+      }
     }
   });
 }
@@ -62,7 +64,6 @@ async function fetchData() {
 
 function processData(data) {
   if (!data) return;
-  // update config panel
   sensorTypeEl.textContent = data.config?.sensorType || 'Magnetometer';
   analogPinEl.textContent  = data.config?.analogPin  || 'A0';
   uptimeEl.textContent     = data.uptime             || '0';
@@ -87,7 +88,7 @@ function processData(data) {
 
 function updateChart(readings) {
   const dr = readings.slice(-20);
-  magneticChart.data.labels     = dr.map(r=>new Date(r.timestamp*1000).toLocaleTimeString());
+  magneticChart.data.labels        = dr.map(r=>new Date(r.timestamp*1000).toLocaleTimeString());
   magneticChart.data.datasets[0].data = dr.map(r=>parseFloat(r.magneticField)||0);
   magneticChart.update();
 }
@@ -100,7 +101,7 @@ function updateTable(readings) {
   });
 }
 
-// === text-to-speech & auto-toggle ===
+// === TTS & AUTO-SPEAK ===
 function speakValue(v) {
   if (!speechSynthesis) return;
   if (speechSynthesis.speaking) speechSynthesis.cancel();
@@ -121,42 +122,36 @@ function handleAutoSpeakToggle() {
   }
 }
 
-// === looping animation untuk span ===
+// === updateMagnetViz: semua span selalu berputar menuju arah B ===
 function updateMagnetViz(B) {
-  const colRange = Math.min(Math.abs(B)*5, COLS);
-  const sign     = B>=0? 1 : -1;
-  const duration = 2;      // durasi 2 detik
-  const interval = 0.2;    // 0.2s delay antar-kolom
+  // strength of effect [0..1]
+  const amplitudeScale = Math.min(Math.abs(B) * 5, 1);
+  const sign           = B >= 0 ? 1 : -1;
+  const duration       = 2;    // detik
+  const interval       = 0.1;  // delay antar-kolom (s)
 
   vizItems.forEach((el, idx) => {
-    const col = idx % COLS;
-    const d   = sign>0? col : (COLS-1-col);
+    const col    = idx % COLS;
+    const dNorm  = col / (COLS - 1);       // [0..1] dari kiri→kanan
+    // compute per-span strength: dekat kutub lebih besar
+    const t      = 1 - dNorm;               // [1..0]
+    const angle  = sign * maxAngle * t * amplitudeScale;
+    const dx     = -sign * maxShift * t * amplitudeScale;
+    const delay  = col * interval;         // tiap kolom delay bertambah
 
-    if (d <= colRange) {
-      const t     = 1 - d/colRange;
-      const ang   = sign * maxAngle * t;
-      const dx    = -sign * maxShift * t;
-      const delay = d * interval;
-
-      el.style.setProperty('--ang', `${ang}deg`);
-      el.style.setProperty('--dx',  `${dx}px`);
-      el.style.setProperty('--delay', `${delay}s`);      // <— satuan "s"
-      el.style.setProperty('--duration', `${duration}s`); // <— satuan "s"
-    } else {
-      // reset ke default
-      el.style.setProperty('--ang', `0deg`);
-      el.style.setProperty('--dx',  `0px`);
-      el.style.setProperty('--delay', `0s`);
-      el.style.setProperty('--duration', `2s`);
-    }
+    // set custom properties dengan satuan yang benar
+    el.style.setProperty('--ang', `${angle}deg`);
+    el.style.setProperty('--dx',  `${dx}px`);
+    el.style.setProperty('--delay', `${delay}s`);
+    el.style.setProperty('--duration', `${duration}s`);
   });
 }
 
-// === event listeners ===
+// === EVENT LISTENERS ===
 document.addEventListener('DOMContentLoaded', () => {
   initChart();
   fetchData().then(processData);
   setInterval(()=>fetchData().then(processData), 5000);
-  speakBtn.addEventListener('click', ()=> speakValue(parseFloat(magneticValueEl.textContent)||0));
+  speakBtn.addEventListener('click', ()=>speakValue(parseFloat(magneticValueEl.textContent)||0));
   toggleAutoSpeakBtn.addEventListener('click', handleAutoSpeakToggle);
 });
