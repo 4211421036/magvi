@@ -35,6 +35,26 @@ body {
     color: white !important;
 }
 
+.magnet-viz {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 4px;
+  justify-items: center;
+  align-items: center;
+  width: 200px;   /* atau sesuaikan */
+  margin: 0 auto;
+}
+
+.magnet-viz span {
+  display: block;
+  width: 4px;
+  height: 24px;
+  background: #eee;
+  transform-origin: center bottom;
+  transform: rotate(var(--rotate, 0deg));
+  transition: transform 0.3s ease-out;
+}
+
 .table-responsive {
     max-height: 300px;
     overflow-y: auto;
