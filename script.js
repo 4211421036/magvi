@@ -8,168 +8,157 @@ const speechSynthesis = window.speechSynthesis;
 const magneticValueEl    = document.getElementById('magneticValue');
 const lastUpdateEl       = document.getElementById('lastUpdate');
 const speakBtn           = document.getElementById('speakBtn');
-const toggleAutoSpeakBtn = document.getElementById('toggleAutoSpeak');   // sesuaikan dengan id di HTML
+const toggleAutoSpeakBtn = document.getElementById('toggleAutoSpeak');
 const sensorTypeEl       = document.getElementById('sensorType');
 const analogPinEl        = document.getElementById('analogPin');
 const uptimeEl           = document.getElementById('uptime');
 const dataTableEl        = document.getElementById('dataTable');
 
-// --- inisialisasi magnet visualization ---
+// --- inisialisasi magnet visualization (9×9 grid) ---
 const vizWrapper = document.getElementById('magnetViz');
-for (let i = 0; i < 81; i++) {
+const COLS = 9;
+for (let i = 0; i < COLS * COLS; i++) {
   const span = document.createElement('span');
-  span.style.setProperty('--rotate', '0deg');
+  // gunakan transform langsung, bukan CSS variable
+  span.style.transition = 'transform 0.3s ease-out';
   vizWrapper.appendChild(span);
 }
-const vizItems = vizWrapper.querySelectorAll('span');
+const vizItems = Array.from(vizWrapper.querySelectorAll('span'));
 
 // Initialize Chart
 function initChart() {
-    const ctx = document.getElementById('magneticChart').getContext('2d');
-    magneticChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Magnetic Field (T)',
-                data: [],
-                borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderWidth: 2,
-                tension: 0.1,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    title: {
-                        display: true,
-                        text: 'Tesla (T)'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Time'
-                    }
-                }
-            },
-            animation: {
-                duration: 1000
-            }
-        }
-    });
+  const ctx = document.getElementById('magneticChart').getContext('2d');
+  magneticChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Magnetic Field (T)',
+        data: [],
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        borderWidth: 2,
+        tension: 0.1,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: false, title: { display: true, text: 'Tesla (T)' } },
+        x: { title: { display: true, text: 'Time' } }
+      },
+      animation: { duration: 1000 }
+    }
+  });
 }
 
 // Fetch data from GitHub
 async function fetchData() {
-    try {
-        const response = await fetch('https://raw.githubusercontent.com/4211421036/magvi/main/magnet_data.json');
-        if (!response.ok) throw new Error('Failed to fetch data');
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        return null;
-    }
+  try {
+    const res = await fetch('https://raw.githubusercontent.com/4211421036/magvi/main/magnet_data.json');
+    if (!res.ok) throw new Error('Fetch failed');
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
 }
 
-// Process and display data
+// Process & display
 function processData(data) {
-    if (!data) return;
-    
-    // Update configuration info
-    sensorTypeEl.textContent = data.config?.sensorType || 'Magnetometer';
-    analogPinEl.textContent  = data.config?.analogPin  || 'A0';
-    uptimeEl.textContent     = data.uptime             || '0';
-    
-    const readings = data.readings || [];
-    if (readings.length === 0) return;
-    
-    // Latest reading
-    const latestReading = readings[readings.length - 1];
-    const currentValue   = parseFloat(latestReading.magneticField) || 0;
-    
-    // Update display & time
-    magneticValueEl.textContent = currentValue.toFixed(6) + ' T';
-    lastUpdateEl.textContent    = new Date().toLocaleTimeString();
-    
-    // Auto-speak
-    if (Math.abs(currentValue - lastValue) > 0.000001) {
-        lastValue = currentValue;
-        if (autoSpeakEnabled) speakValue(currentValue);
-    }
-    
-    // Update chart & table
-    updateChart(readings);
-    updateTable(readings);
-    
-    // --- visualisasi medan magnet ---
-    if (currentValue !== 0) {
-      updateMagnetViz(currentValue);
-    }
+  if (!data) return;
+  // config
+  sensorTypeEl.textContent = data.config?.sensorType || 'Magnetometer';
+  analogPinEl.textContent  = data.config?.analogPin  || 'A0';
+  uptimeEl.textContent     = data.uptime             || '0';
+  const readings = data.readings || [];
+  if (!readings.length) return;
+
+  const latest = readings[readings.length - 1];
+  const B = parseFloat(latest.magneticField) || 0;
+  magneticValueEl.textContent = B.toFixed(6) + ' T';
+  lastUpdateEl.textContent    = new Date().toLocaleTimeString();
+
+  if (Math.abs(B - lastValue) > 1e-6) {
+    lastValue = B;
+    if (autoSpeakEnabled) speakValue(B);
+  }
+
+  updateChart(readings);
+  updateTable(readings);
+
+  // **panggil visualisasi** (jika B≠0)
+  updateMagnetViz(B);
 }
 
-// Update chart
+// Chart & Table (sama seperti sebelumnya)
 function updateChart(readings) {
-    const displayReadings = readings.slice(-20);
-    magneticChart.data.labels = displayReadings.map(r => new Date(r.timestamp*1000).toLocaleTimeString());
-    magneticChart.data.datasets[0].data = displayReadings.map(r => parseFloat(r.magneticField) || 0);
-    magneticChart.update();
+  const dr = readings.slice(-20);
+  magneticChart.data.labels = dr.map(r => new Date(r.timestamp*1000).toLocaleTimeString());
+  magneticChart.data.datasets[0].data = dr.map(r => parseFloat(r.magneticField) || 0);
+  magneticChart.update();
 }
-
-// Update table
 function updateTable(readings) {
-    dataTableEl.innerHTML = '';
-    readings.slice(-10).reverse().forEach(reading => {
-        const row = document.createElement('tr');
-        const date = new Date((reading.timestamp || 0)*1000).toLocaleTimeString();
-        row.innerHTML = `<td>${date}</td><td>${(parseFloat(reading.magneticField)||0).toFixed(6)}</td>`;
-        dataTableEl.appendChild(row);
-    });
+  dataTableEl.innerHTML = '';
+  readings.slice(-10).reverse().forEach(r => {
+    const t = new Date(r.timestamp*1000).toLocaleTimeString();
+    const v = (parseFloat(r.magneticField)||0).toFixed(6);
+    dataTableEl.innerHTML += `<tr><td>${t}</td><td>${v}</td></tr>`;
+  });
 }
 
-// Speak the current value
-function speakValue(value) {
-    if (!speechSynthesis) return;
-    if (speechSynthesis.speaking) speechSynthesis.cancel();
-    const utt = new SpeechSynthesisUtterance(`Magnetic field is ${value.toFixed(6)} Tesla`);
-    utt.rate = 0.9;
-    utt.onerror = e => console.error('Speech error:', e);
-    speechSynthesis.speak(utt);
+// Text-to-speech
+function speakValue(v) {
+  if (!speechSynthesis) return;
+  if (speechSynthesis.speaking) speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(`Magnetic field is ${v.toFixed(6)} Tesla`);
+  u.rate = 0.9;
+  speechSynthesis.speak(u);
 }
 
-// Toggle auto-speak
+// Auto-speak toggle
 function handleAutoSpeakToggle() {
-    autoSpeakEnabled = !autoSpeakEnabled;
-    if (autoSpeakEnabled) {
-        toggleAutoSpeakBtn.innerHTML = '<i class="bi bi-megaphone"></i> Auto-Read: ON';
-        toggleAutoSpeakBtn.classList.replace('btn-outline-primary', 'btn-primary');
-        speakValue(parseFloat(magneticValueEl.textContent) || 0);
-    } else {
-        toggleAutoSpeakBtn.innerHTML = '<i class="bi bi-megaphone"></i> Auto-Read: OFF';
-        toggleAutoSpeakBtn.classList.replace('btn-primary', 'btn-outline-primary');
-    }
+  autoSpeakEnabled = !autoSpeakEnabled;
+  if (autoSpeakEnabled) {
+    toggleAutoSpeakBtn.innerHTML = '<i class="bi bi-megaphone"></i> Auto-Read: ON';
+    toggleAutoSpeakBtn.classList.replace('btn-outline-primary','btn-primary');
+    speakValue(parseFloat(magneticValueEl.textContent)||0);
+  } else {
+    toggleAutoSpeakBtn.innerHTML = '<i class="bi bi-megaphone"></i> Auto-Read: OFF';
+    toggleAutoSpeakBtn.classList.replace('btn-primary','btn-outline-primary');
+  }
 }
 
-// --- fungsi tambahan untuk visualisasi ---
-function updateMagnetViz(value) {
-    // skala: 1 Tesla => 90°
-    const scale = 90;
-    const angle = value * scale;
-    vizItems.forEach(item => {
-      item.style.setProperty('--rotate', `${angle}deg`);
-    });
+// === fungsi yang diubah untuk efek “kutub magnet” ===
+function updateMagnetViz(B) {
+  // scale jarak: berapa kolom terpengaruh per Tesla
+  const colRange = Math.min(Math.abs(B) * 5, COLS);
+  const maxAngle = 90;     // sudut maksimal di kutub
+  const maxShift = 8;      // px pergerakan maksimal
+
+  vizItems.forEach((el, idx) => {
+    const col = idx % COLS;
+    // tentukan jarak dari kutub (+ di kiri, – di kanan)
+    const d = B >= 0 ? col : (COLS - 1 - col);
+
+    if (d <= colRange) {
+      const t = 1 - d/colRange;      // t=1 di kutub, →0 menjauh
+      const ang = (B>=0?1:-1) * maxAngle * t;
+      const dx  = (B>=0?-1:1) * maxShift * t;
+      el.style.transform = `translateX(${dx}px) rotate(${ang}deg)`;
+    } else {
+      // di luar jangkauan: reset
+      el.style.transform = `translateX(0px) rotate(0deg)`;
+    }
+  });
 }
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
-    initChart();
-    fetchData().then(processData);
-    setInterval(() => fetchData().then(processData), 5000);
-    speakBtn.addEventListener('click', () => speakValue(parseFloat(magneticValueEl.textContent) || 0));
-    toggleAutoSpeakBtn.addEventListener('click', handleAutoSpeakToggle);
+  initChart();
+  fetchData().then(processData);
+  setInterval(() => fetchData().then(processData), 5000);
+  speakBtn.addEventListener('click', () => speakValue(parseFloat(magneticValueEl.textContent)||0));
+  toggleAutoSpeakBtn.addEventListener('click', handleAutoSpeakToggle);
 });
