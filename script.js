@@ -1,9 +1,14 @@
 // Global variables
-let prevAffected = new Set();
 let magneticChart;
 let autoSpeakEnabled = false;
 let lastValue = 0;
 const speechSynthesis = window.speechSynthesis;
+
+// Visualization constants
+const COLS     = 9;    // grid 9×9
+const maxAngle = 90;   // rotasi maksimal di kutub (°)
+const maxShift = 8;    // pergeseran horizontal maksimal (px)
+let prevAffected = new Set();  // span yang sebelumnya terpengaruh
 
 // DOM Elements
 const magneticValueEl    = document.getElementById('magneticValue');
@@ -17,10 +22,8 @@ const dataTableEl        = document.getElementById('dataTable');
 
 // --- inisialisasi magnet visualization (9×9 grid) ---
 const vizWrapper = document.getElementById('magnetViz');
-const COLS = 9;
 for (let i = 0; i < COLS * COLS; i++) {
   const span = document.createElement('span');
-  // gunakan transform langsung, bukan CSS variable
   span.style.transition = 'transform 0.3s ease-out';
   vizWrapper.appendChild(span);
 }
@@ -61,7 +64,7 @@ async function fetchData() {
     if (!res.ok) throw new Error('Fetch failed');
     return await res.json();
   } catch (e) {
-    console.error(e);
+    console.error('Error fetching data:', e);
     return null;
   }
 }
@@ -77,7 +80,7 @@ function processData(data) {
   if (!readings.length) return;
 
   const latest = readings[readings.length - 1];
-  const B = parseFloat(latest.magneticField) || 0;
+  const B      = parseFloat(latest.magneticField) || 0;
   magneticValueEl.textContent = B.toFixed(6) + ' T';
   lastUpdateEl.textContent    = new Date().toLocaleTimeString();
 
@@ -89,11 +92,11 @@ function processData(data) {
   updateChart(readings);
   updateTable(readings);
 
-  // **panggil visualisasi** (jika B≠0)
+  // panggil visualisasi
   updateMagnetViz(B);
 }
 
-// Chart & Table (sama seperti sebelumnya)
+// Chart & Table
 function updateChart(readings) {
   const dr = readings.slice(-20);
   magneticChart.data.labels = dr.map(r => new Date(r.timestamp*1000).toLocaleTimeString());
@@ -131,40 +134,36 @@ function handleAutoSpeakToggle() {
   }
 }
 
+// === fungsi animasi span per-kutub ===
 function updateMagnetViz(B) {
-  const colRange  = Math.min(Math.abs(B) * 5, COLS);
-  const sign      = B >= 0 ? 1 : -1;
+  const colRange    = Math.min(Math.abs(B) * 5, COLS);
+  const sign        = B >= 0 ? 1 : -1;
   const newAffected = new Set();
 
   vizItems.forEach((el, idx) => {
-    // hitung jarak kolom ke kutub (+ kiri, – kanan)
     const col = idx % COLS;
-    const d   = B >= 0 ? col : (COLS - 1 - col);
+    const d   = sign > 0 ? col : (COLS - 1 - col);
 
     if (d <= colRange) {
       newAffected.add(el);
-      const t   = 1 - d/colRange;         // strength 1→0
+      const t   = 1 - d/colRange;
       const ang = sign * maxAngle * t;
       const dx  = -sign * maxShift * t;
 
-      // atur delay berdasarkan d, supaya berurutan
       setTimeout(() => {
         el.style.transform = `translateX(${dx}px) rotate(${ang}deg)`;
-      }, d * 80);  // 80ms per langkah, kamu bisa tweak
+      }, d * 80);
     }
     else if (prevAffected.has(el)) {
-      // kalau dulu aktif, sekarang harus reset
-      // delay sedikit agar urut setelah yang aktif terakhir
+      // reset yang dulu terpengaruh
       setTimeout(() => {
         el.style.transform = `translateX(0px) rotate(0deg)`;
       }, (colRange + 1) * 80);
     }
   });
 
-  // update state untuk deteksi span mana yang harus di-reset
   prevAffected = newAffected;
 }
-
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
