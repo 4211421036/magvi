@@ -8,7 +8,7 @@ const speechSynthesis = window.speechSynthesis;
 const magneticValueEl = document.getElementById('magneticValue');
 const lastUpdateEl = document.getElementById('lastUpdate');
 const speakBtn = document.getElementById('speakBtn');
-const toggleAutoSpeakBtn = document.getElementById('toggleAutoSpeak'); // Ubah nama variabel
+const toggleAutoSpeakBtn = document.getElementById('toggleAutoSpeakBtn');
 const sensorTypeEl = document.getElementById('sensorType');
 const analogPinEl = document.getElementById('analogPin');
 const uptimeEl = document.getElementById('uptime');
@@ -59,7 +59,7 @@ function initChart() {
 // Fetch data from GitHub
 async function fetchData() {
     try {
-        const response = await fetch('https://raw.githubusercontent.com/4211421036/flowsense/main/magnet_data.json');
+        const response = await fetch('https://raw.githubusercontent.com/4211421036/magvi/main/magnet_data.json');
         
         if (!response.ok) {
             throw new Error('Failed to fetch data');
@@ -78,8 +78,8 @@ function processData(data) {
     if (!data) return;
     
     // Update configuration info
-    sensorTypeEl.textContent = data.config.sensorType || 'Magnetometer';
-    analogPinEl.textContent = data.config.analogPin || 'A0';
+    sensorTypeEl.textContent = data.config?.sensorType || 'Magnetometer';
+    analogPinEl.textContent = data.config?.analogPin || 'A0';
     uptimeEl.textContent = data.uptime || '0';
     
     // Get the latest reading
@@ -181,7 +181,7 @@ function speakValue(value) {
 }
 
 // Toggle auto-speak function
-function toggleAutoSpeakFunction() {
+function handleAutoSpeakToggle() {
     autoSpeakEnabled = !autoSpeakEnabled;
     
     if (autoSpeakEnabled) {
@@ -219,5 +219,5 @@ document.addEventListener('DOMContentLoaded', () => {
         speakValue(currentValue);
     });
     
-    toggleAutoSpeakBtn.addEventListener('click', toggleAutoSpeakFunction);
+    toggleAutoSpeakBtn.addEventListener('click', handleAutoSpeakToggle);
 });
