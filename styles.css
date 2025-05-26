@@ -111,10 +111,10 @@ h1 { font-size: clamp(1.5rem, 5vw, var(--fs-xl)); margin-bottom: var(--sp-md); }
 /* GRID SPAN */
 .magnet-viz {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(12px, 1fr));
-  gap: var(--sp-xs);
-  max-width: 240px;
-  margin: var(--sp-md) auto;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 4px;
+  width: 200px;
+  margin: auto;
 }
 
 .magnet-viz span {
