@@ -33,6 +33,11 @@ const fieldMeterBx       = document.getElementById('fieldMeterBx');
 const fieldMeterBy       = document.getElementById('fieldMeterBy');
 const fieldMeterTheta    = document.getElementById('fieldMeterTheta');
 
+// setelah const vizItems = …
+const wrapperRect = () => vizWrapper.getBoundingClientRect(); 
+const cellW = () => wrapperRect().width  / COLS;
+const cellH = () => wrapperRect().height / COLS;
+
 // container for drag bounds
 const container = vizWrapper.parentElement;
 const containerRect = () => container.getBoundingClientRect();
@@ -180,11 +185,35 @@ function calculateFieldAtPosition(x, y, bounds) {
 }
 
 function updateFieldMeter() {
-  const bnds = containerRect();
-  const fmBnds = fieldMeter.getBoundingClientRect();
-  const cx = fmBnds.left + fmBnds.width/2  - bnds.left;
-  const cy = fmBnds.top  + fmBnds.height/2 - bnds.top;
-  const {B, Bx, By, theta} = calculateFieldAtPosition(cx, cy, bnds);
+  if (!fieldMeterEnabled) return;
+
+  // dapatkan koordinat tengah meter relatif ke wrapper
+  const fmRect = fieldMeter.getBoundingClientRect();
+  const wrRect = wrapperRect();
+  const cx = fmRect.left + fmRect.width/2  - wrRect.left;
+  const cy = fmRect.top  + fmRect.height/2 - wrRect.top;
+
+  // cari indeks row/col di grid
+  let col = Math.floor(cx / cellW());
+  let row = Math.floor(cy / cellH());
+  // clamp di 0..COLS-1
+  col = Math.max(0, Math.min(COLS-1, col));
+  row = Math.max(0, Math.min(COLS-1, row));
+  const idx = row * COLS + col;
+  const span = vizItems[idx];
+
+  // magnitude = data sensor
+  const B = currentMagneticField * 1e4;          // Tesla → Gauss
+  // ambil sudut dari CSS var
+  const angStr = span.style.getPropertyValue('--ang') || '0deg';
+  const theta = parseFloat(angStr);              // derajat
+  const rad   = theta * Math.PI/180;
+
+  // komponen
+  const Bx = B * Math.cos(rad);
+  const By = B * Math.sin(rad);
+
+  // update UI
   fieldMeterB.textContent     = `${B.toFixed(2)} G`;
   fieldMeterBx.textContent    = `${Bx.toFixed(2)} G`;
   fieldMeterBy.textContent    = `${By.toFixed(2)} G`;
