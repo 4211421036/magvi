@@ -2,12 +2,19 @@
 let magneticChart;
 let autoSpeakEnabled = false;
 let lastValue = 0;
+let currentMagneticField = 0;
 const speechSynthesis = window.speechSynthesis;
 
 // Visualization constants
 const COLS      = 9;    // grid 9×9
 const maxAngle  = 90;   // sudut maksimal di kutub (°)
 const maxShift  = 8;    // geser horizontal maksimal (px)
+
+// Field meter variables
+let fieldMeterEnabled = false;
+let isDragging = false;
+let dragOffset = { x: 0, y: 0 };
+
 
 // DOM Elements
 const magneticValueEl    = document.getElementById('magneticValue');
@@ -18,6 +25,10 @@ const sensorTypeEl       = document.getElementById('sensorType');
 const analogPinEl        = document.getElementById('analogPin');
 const uptimeEl           = document.getElementById('uptime');
 const dataTableEl        = document.getElementById('dataTable');
+const fieldMeterB        = document.getElementById('fieldMeterB');
+const fieldMeterBx       = document.getElementById('fieldMeterBx');
+const fieldMeterBy       = document.getElementById('fieldMeterBy');
+const fieldMeterTheta    = document.getElementById('fieldMeterTheta');
 
 // --- init grid span (9×9) ---
 const vizWrapper = document.getElementById('magnetViz');
@@ -84,6 +95,9 @@ function processData(data) {
   updateChart(readings);
   updateTable(readings);
   updateMagnetViz(B);
+  if (fieldMeterEnabled) {
+      updateFieldMeter();
+  }
 }
 
 function updateChart(readings) {
@@ -146,6 +160,115 @@ function updateMagnetViz(B) {
     el.style.setProperty('--duration', `${duration}s`);
   });
 }
+
+// Field meter functions
+function calculateFieldAtPosition(x, y, containerRect) {
+    // Normalize position to [-1, 1] range
+    const normalizedX = (x - containerRect.width / 2) / (containerRect.width / 2);
+    const normalizedY = (y - containerRect.height / 2) / (containerRect.height / 2);
+    
+    // Distance from center affects field strength
+    const distance = Math.sqrt(normalizedX * normalizedX + normalizedY * normalizedY);
+    const baseMagnitude = currentMagneticField * 10000; // Convert to Gauss and scale
+    
+    // Simulate field variation based on position
+    const magnitude = baseMagnitude * (1 + 0.3 * Math.sin(normalizedX * Math.PI) * Math.cos(normalizedY * Math.PI));
+    
+    // Calculate components
+    const Bx = magnitude * Math.cos(normalizedX + normalizedY);
+    const By = magnitude * Math.sin(normalizedX - normalizedY) * 0.3; // Smaller Y component
+    const B = Math.sqrt(Bx * Bx + By * By);
+    
+    // Calculate angle
+    const theta = Math.atan2(By, Bx) * 180 / Math.PI;
+    
+    return { B, Bx, By, theta };
+}
+
+function updateFieldMeter() {
+    if (!fieldMeterEnabled) return;
+    
+    const container = document.querySelector('.visualization-container');
+    const containerRect = container.getBoundingClientRect();
+    const fieldMeterRect = fieldMeter.getBoundingClientRect();
+    
+    // Get field meter center position relative to container
+    const centerX = fieldMeterRect.left + fieldMeterRect.width / 2 - containerRect.left;
+    const centerY = fieldMeterRect.top + fieldMeterRect.height / 2 - containerRect.top;
+    
+    const field = calculateFieldAtPosition(centerX, centerY, containerRect);
+    
+    // Update field meter display
+    fieldMeterB.textContent = `${field.B.toFixed(2)} G`;
+    fieldMeterBx.textContent = `${field.Bx.toFixed(2)} G`;
+    fieldMeterBy.textContent = `${field.By.toFixed(2)} G`;
+    fieldMeterTheta.textContent = `${field.theta.toFixed(0)}°`;
+}
+
+function toggleFieldMeter() {
+    fieldMeterEnabled = fieldMeterToggle.checked;
+    
+    if (fieldMeterEnabled) {
+        fieldMeter.style.display = 'block';
+        // Position at center initially
+        const container = document.querySelector('.visualization-container');
+        const containerRect = container.getBoundingClientRect();
+        fieldMeter.style.left = `${containerRect.width / 2 - 60}px`;
+        fieldMeter.style.top = `${containerRect.height / 2 - 40}px`;
+        updateFieldMeter();
+    } else {
+        fieldMeter.style.display = 'none';
+    }
+}
+
+// Drag functionality
+function startDrag(e) {
+    if (!fieldMeterEnabled) return;
+    
+    isDragging = true;
+    fieldMeter.classList.add('dragging');
+    
+    const rect = fieldMeter.getBoundingClientRect();
+    const clientX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+    const clientY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
+    
+    dragOffset.x = clientX - rect.left;
+    dragOffset.y = clientY - rect.top;
+    
+    e.preventDefault();
+}
+
+function drag(e) {
+    if (!isDragging || !fieldMeterEnabled) return;
+    
+    const container = document.querySelector('.visualization-container');
+    const containerRect = container.getBoundingClientRect();
+    
+    const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+    const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
+    
+    let newX = clientX - containerRect.left - dragOffset.x;
+    let newY = clientY - containerRect.top - dragOffset.y;
+    
+    // Keep within container bounds
+    const meterRect = fieldMeter.getBoundingClientRect();
+    newX = Math.max(0, Math.min(newX, containerRect.width - meterRect.width));
+    newY = Math.max(0, Math.min(newY, containerRect.height - meterRect.height));
+    
+    fieldMeter.style.left = `${newX}px`;
+    fieldMeter.style.top = `${newY}px`;
+    
+    updateFieldMeter();
+    e.preventDefault();
+}
+
+function endDrag() {
+    if (isDragging) {
+        isDragging = false;
+        fieldMeter.classList.remove('dragging');
+    }
+}
+
 
 // === EVENT LISTENERS ===
 document.addEventListener('DOMContentLoaded', () => {
