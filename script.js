@@ -10,6 +10,12 @@ const COLS      = 9;
 const maxAngle  = 90;
 const maxShift  = 8;
 
+const html = document.documentElement;
+const toggle = document.getElementById('themeToggle');
+
+const saved = localStorage.getItem('theme');
+if (saved) html.dataset.theme = saved;
+
 // Field meter state
 let fieldMeterEnabled = false;
 let isDragging       = false;
@@ -52,6 +58,12 @@ for (let i = 0; i < COLS * COLS; i++) {
   vizWrapper.appendChild(span);
 }
 const vizItems = Array.from(vizWrapper.querySelectorAll('span'));
+
+toggle.addEventListener('click', () => {
+  const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  html.dataset.theme = next;
+  localStorage.setItem('theme', next);
+});
 
 // === CHART & FETCH ===
 function initChart() {
