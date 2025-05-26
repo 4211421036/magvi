@@ -8,196 +8,127 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-    
     <div class="container mt-5">
-        <header>
-            <h1 class="text-center mb-4">Magnetometer Monitoring Dashboard</h1>
-            <nav aria-label="Page navigation">
-                <ul class="nav nav-pills justify-content-center mb-4" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="overview-tab" data-bs-toggle="pill" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">
-                            <i class="bi bi-speedometer2" aria-hidden="true"></i> Overview
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="visualization-tab" data-bs-toggle="pill" data-bs-target="#visualization" type="button" role="tab" aria-controls="visualization" aria-selected="false">
-                            <i class="bi bi-diagram-3" aria-hidden="true"></i> Visualization
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="data-tab" data-bs-toggle="pill" data-bs-target="#data" type="button" role="tab" aria-controls="data" aria-selected="false">
-                            <i class="bi bi-table" aria-hidden="true"></i> Raw Data
-                        </button>
-                    </li>
-                </ul>
-            </nav>
-        </header>
+        <h1 class="text-center mb-4">Magnetometer Monitoring</h1>
         
-        <main id="main-content">
-            <div class="tab-content">
-                <!-- Overview Tab -->
-                <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
-                    <div class="row">
-                        <!-- Card 1: Value Display with Speech -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card shadow">
-                                <div class="card-header bg-primary text-white">
-                                    <h2 class="card-title h5 mb-0">
-                                        <span class="status-indicator status-connected" aria-hidden="true"></span>
-                                        Magnetic Field Value
-                                    </h2>
-                                </div>
-                                <div class="card-body text-center">
-                                    <div class="display-4 mb-3" id="magneticValue" aria-live="polite" aria-label="Current magnetic field reading">0.000000 T</div>
-                                    <div class="mt-3" role="group" aria-label="Audio controls">
-                                        <button id="speakBtn" class="btn btn-success me-2" type="button" aria-describedby="speak-help">
-                                            <i class="bi bi-volume-up" aria-hidden="true"></i> 
-                                            <span>Read Value Aloud</span>
-                                        </button>
-                                        <button id="toggleAutoSpeak" class="btn btn-outline-primary" type="button" aria-describedby="auto-speak-help" aria-pressed="false">
-                                            <i class="bi bi-megaphone" aria-hidden="true"></i> 
-                                            <span id="autoSpeakText">Auto-Read: OFF</span>
-                                        </button>
-                                    </div>
-                                    <div class="mt-2">
-                                        <small id="speak-help" class="text-muted">Reads the current magnetic field value using text-to-speech</small>
-                                        <br>
-                                        <small id="auto-speak-help" class="text-muted">Automatically reads new values when they change</small>
-                                    </div>
-                                </div>
-                                <div class="card-footer text-muted">
-                                    <i class="bi bi-clock" aria-hidden="true"></i>
-                                    Last updated: <span id="lastUpdate" aria-live="polite">Never</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Card 2: Configuration Info -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card shadow">
-                                <div class="card-header bg-info text-white">
-                                    <h2 class="card-title h5 mb-0">Sensor Configuration</h2>
-                                </div>
-                                <div class="card-body">
-                                    <dl class="row mb-0">
-                                        <dt class="col-sm-5">Sensor Type:</dt>
-                                        <dd class="col-sm-7" id="sensorType">-</dd>
-                                        
-                                        <dt class="col-sm-5">Analog Pin:</dt>
-                                        <dd class="col-sm-7" id="analogPin">-</dd>
-                                        
-                                        <dt class="col-sm-5">Uptime:</dt>
-                                        <dd class="col-sm-7"><span id="uptime">-</span> minutes</dd>
-                                    </dl>
-                                </div>
-                            </div>
+        <div class="row">
+            <!-- Card 1: Value Display with Speech -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title">Magnetic Field Value</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <h2 id="magneticValue" class="display-4">0.000000 T</h2>
+                        <div class="mt-3">
+                            <button id="speakBtn" class="btn btn-success me-2">
+                                <i class="bi bi-volume-up"></i> Read Value
+                            </button>
+                            <button id="toggleAutoSpeak" class="btn btn-outline-primary">
+                                <i class="bi bi-megaphone"></i> Auto-Read: OFF
+                            </button>
                         </div>
                     </div>
-                    
-                    <!-- Chart Card -->
-                    <div class="card shadow mb-4">
-                        <div class="card-header bg-warning text-dark">
-                            <h2 class="card-title h5 mb-0">Magnetic Field History</h2>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="magneticChart" height="300" role="img" aria-label="Line chart showing magnetic field strength over time"></canvas>
-                            <div class="mt-2">
-                                <small class="text-muted">
-                                    <i class="bi bi-info-circle" aria-hidden="true"></i>
-                                    Chart displays the last 50 magnetic field measurements over time
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Visualization Tab -->
-                <div class="tab-pane fade" id="visualization" role="tabpanel" aria-labelledby="visualization-tab">
-                    <div class="card shadow mb-4">
-                        <div class="card-header bg-warning text-dark">
-                            <h2 class="card-title h5 mb-0">Magnetic Field Visualization</h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="field-meter-controls">
-                                <div class="form-check form-check-inline field-meter-toggle">
-                                    <input class="form-check-input" type="checkbox" id="fieldMeterToggle" aria-describedby="field-meter-help">
-                                    <label class="form-check-label" for="fieldMeterToggle">
-                                        <i class="bi bi-rulers" aria-hidden="true"></i> Show Field Meter
-                                    </label>
-                                </div>
-                                <div>
-                                    <small id="field-meter-help" class="text-muted">
-                                        <i class="bi bi-info-circle" aria-hidden="true"></i> 
-                                        Enable field meter to measure magnetic field strength at any position. Use arrow keys or drag to move around.
-                                    </small>
-                                </div>
-                            </div>
-                            <div id="magnetViz" class="magnet-viz mt-4" role="img" aria-label="Interactive magnetic field visualization" tabindex="0" 
-                                 onkeydown="handleVisualizationKeydown(event)" 
-                                 aria-describedby="viz-instructions">
-                                <!-- Visualization content will be inserted here -->
-                            </div>
-                            <div id="viz-instructions" class="mt-2 small text-muted">
-                                Use arrow keys to navigate, Enter to toggle field meter, or click and drag to interact with the visualization.
-                            </div>
-                            <div id="fieldMeter" class="field-meter" style="display: none;" role="region" aria-label="Field meter readings" aria-live="polite">
-                                <div class="field-meter-header">FIELD METER</div>
-                                <div class="field-meter-row">
-                                    <span class="field-meter-label">B</span>
-                                    <span id="fieldMeterB" class="field-meter-value">1.44 G</span>
-                                </div>
-                                <div class="field-meter-row">
-                                    <span class="field-meter-label">Bₓ</span>
-                                    <span id="fieldMeterBx" class="field-meter-value">1.44 G</span>
-                                </div>
-                                <div class="field-meter-row">
-                                    <span class="field-meter-label">Bᵧ</span>
-                                    <span id="fieldMeterBy" class="field-meter-value">0 G</span>
-                                </div>
-                                <div class="field-meter-row">
-                                    <span class="field-meter-label">θ</span>
-                                    <span id="fieldMeterTheta" class="field-meter-value">0°</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Raw Data Tab -->
-                <div class="tab-pane fade" id="data" role="tabpanel" aria-labelledby="data-tab">
-                    <div class="card shadow">
-                        <div class="card-header bg-secondary text-white">
-                            <h2 class="card-title h5 mb-0">Raw Data</h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped" role="table" aria-label="Magnetic field measurement data">
-                                    <caption class="visually-hidden">
-                                        Historical magnetic field measurements with timestamps and values in Tesla
-                                    </caption>
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Timestamp</th>
-                                            <th scope="col">Magnetic Field (T)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="dataTable">
-                                        <!-- Data will be inserted here -->
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="mt-2">
-                                <small class="text-muted">
-                                    <i class="bi bi-info-circle" aria-hidden="true"></i>
-                                    Showing the most recent 100 measurements
-                                </small>
-                            </div>
-                        </div>
+                    <div class="card-footer text-muted">
+                        Last updated: <span id="lastUpdate">Never</span>
                     </div>
                 </div>
             </div>
-        </main>
+            
+            <!-- Card 2: Configuration Info -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title">Sensor Configuration</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>Sensor Type:</strong> <span id="sensorType">-</span>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Analog Pin:</strong> <span id="analogPin">-</span>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Uptime:</strong> <span id="uptime">-</span> minutes
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chart Card -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title">Magnetic Field History</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="magneticChart" height="300"></canvas>
+            </div>
+        </div>
+        <!-- Magnet visualization -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title">Magnetic Field Visualisasi</h5>
+            </div>
+            <div class="card-body">
+                <div class="field-meter-controls">
+                    <div class="form-check form-check-inline field-meter-toggle">
+                        <input class="form-check-input" type="checkbox" id="fieldMeterToggle">
+                        <label class="form-check-label" for="fieldMeterToggle">
+                            <i class="bi bi-rulers"></i> Show Field Meter
+                        </label>
+                    </div>
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle"></i> 
+                        Enable field meter to measure magnetic field strength at any position. Drag to move around.
+                    </small>
+                </div>
+                <div id="magnetViz" class="magnet-viz mt-4"></div>
+                <div id="fieldMeter" class="field-meter" style="display: none;">
+                    <div class="field-meter-header">FIELD METER</div>
+                    <div class="field-meter-row">
+                        <span class="field-meter-label">B</span>
+                        <span id="fieldMeterB" class="field-meter-value">1.44 G</span>
+                    </div>
+                    <div class="field-meter-row">
+                        <span class="field-meter-label">Bₓ</span>
+                        <span id="fieldMeterBx" class="field-meter-value">1.44 G</span>
+                    </div>
+                    <div class="field-meter-row">
+                        <span class="field-meter-label">Bᵧ</span>
+                        <span id="fieldMeterBy" class="field-meter-value">0 G</span>
+                    </div>
+                    <div class="field-meter-row">
+                        <span class="field-meter-label">θ</span>
+                        <span id="fieldMeterTheta" class="field-meter-value">0°</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Raw Data Card -->
+        <div class="card shadow">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="card-title">Raw Data</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Magnetic Field (T)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTable">
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Bootstrap Icons -->
