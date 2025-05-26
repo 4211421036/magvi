@@ -73,7 +73,38 @@
                 <h5 class="card-title">Magnetic Field Visualisasi</h5>
             </div>
             <div class="card-body">
+                <div class="field-meter-controls">
+                    <div class="form-check form-check-inline field-meter-toggle">
+                        <input class="form-check-input" type="checkbox" id="fieldMeterToggle">
+                        <label class="form-check-label" for="fieldMeterToggle">
+                            <i class="bi bi-rulers"></i> Show Field Meter
+                        </label>
+                    </div>
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle"></i> 
+                        Enable field meter to measure magnetic field strength at any position. Drag to move around.
+                    </small>
+                </div>
                 <div id="magnetViz" class="magnet-viz mt-4"></div>
+                <div id="fieldMeter" class="field-meter" style="display: none;">
+                    <div class="field-meter-header">FIELD METER</div>
+                    <div class="field-meter-row">
+                        <span class="field-meter-label">B</span>
+                        <span id="fieldMeterB" class="field-meter-value">1.44 G</span>
+                    </div>
+                    <div class="field-meter-row">
+                        <span class="field-meter-label">Bₓ</span>
+                        <span id="fieldMeterBx" class="field-meter-value">1.44 G</span>
+                    </div>
+                    <div class="field-meter-row">
+                        <span class="field-meter-label">Bᵧ</span>
+                        <span id="fieldMeterBy" class="field-meter-value">0 G</span>
+                    </div>
+                    <div class="field-meter-row">
+                        <span class="field-meter-label">θ</span>
+                        <span id="fieldMeterTheta" class="field-meter-value">0°</span>
+                    </div>
+                </div>
             </div>
         </div>
         
