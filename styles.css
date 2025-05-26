@@ -93,3 +93,80 @@ body {
 .table-responsive::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+.field-meter {
+    position: absolute;
+    background: #2563eb;
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    cursor: move;
+    user-select: none;
+    z-index: 10;
+    min-width: 120px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: white;
+    border: 2px solid #1d4ed8;
+}
+
+.field-meter.dragging {
+    transform: scale(1.05);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.field-meter-header {
+    background: #1d4ed8;
+    margin: -8px -8px 4px -8px;
+    padding: 4px 8px;
+    border-radius: 6px 6px 0 0;
+    text-align: center;
+    font-weight: bold;
+    font-size: 10px;
+}
+
+.field-meter-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 2px 0;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.field-meter-label {
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.field-meter-value {
+    background: #000;
+    color: #00ff00;
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-family: 'Courier New', monospace;
+    min-width: 50px;
+    text-align: right;
+}
+
+.field-meter-controls {
+    margin-bottom: 10px;
+}
+
+.field-meter-toggle {
+    margin-right: 10px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .field-meter {
+        font-size: 10px;
+        min-width: 100px;
+        padding: 6px;
+    }
+    
+    .visualization-container {
+        min-height: 250px;
+    }
+}
