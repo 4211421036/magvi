@@ -6,15 +6,14 @@ let currentMagneticField = 0;
 const speechSynthesis = window.speechSynthesis;
 
 // Visualization constants
-const COLS      = 9;    // grid 9×9
-const maxAngle  = 90;   // sudut maksimal di kutub (°)
-const maxShift  = 8;    // geser horizontal maksimal (px)
+const COLS      = 9;
+const maxAngle  = 90;
+const maxShift  = 8;
 
-// Field meter variables
+// Field meter state
 let fieldMeterEnabled = false;
-let isDragging = false;
-let dragOffset = { x: 0, y: 0 };
-
+let isDragging       = false;
+let dragOffset       = { x: 0, y: 0 };
 
 // DOM Elements
 const magneticValueEl    = document.getElementById('magneticValue');
@@ -25,19 +24,25 @@ const sensorTypeEl       = document.getElementById('sensorType');
 const analogPinEl        = document.getElementById('analogPin');
 const uptimeEl           = document.getElementById('uptime');
 const dataTableEl        = document.getElementById('dataTable');
+
+const vizWrapper         = document.getElementById('magnetViz');
+const fieldMeter         = document.getElementById('fieldMeter');
+const fieldMeterToggle   = document.getElementById('fieldMeterToggle');
 const fieldMeterB        = document.getElementById('fieldMeterB');
 const fieldMeterBx       = document.getElementById('fieldMeterBx');
 const fieldMeterBy       = document.getElementById('fieldMeterBy');
 const fieldMeterTheta    = document.getElementById('fieldMeterTheta');
 
+// container for drag bounds
+const container = vizWrapper.parentElement;
+const containerRect = () => container.getBoundingClientRect();
+
 // --- init grid span (9×9) ---
-const vizWrapper = document.getElementById('magnetViz');
 for (let i = 0; i < COLS * COLS; i++) {
   const span = document.createElement('span');
-  // set default CSS vars
-  span.style.setProperty('--dx', '0px');
-  span.style.setProperty('--ang', '0deg');
-  span.style.setProperty('--delay', '0s');
+  span.style.setProperty('--dx',       '0px');
+  span.style.setProperty('--ang',      '0deg');
+  span.style.setProperty('--delay',    '0s');
   span.style.setProperty('--duration', '2s');
   vizWrapper.appendChild(span);
 }
@@ -48,7 +53,7 @@ function initChart() {
   const ctx = document.getElementById('magneticChart').getContext('2d');
   magneticChart = new Chart(ctx, {
     type: 'line',
-    data: { labels: [], datasets: [{ 
+    data: { labels: [], datasets: [{
       label: 'Magnetic Field (T)',
       data: [], borderWidth:2, tension:0.1, fill:true,
       borderColor:'rgba(75,192,192,1)', backgroundColor:'rgba(75,192,192,0.2)'
@@ -56,7 +61,7 @@ function initChart() {
     options: { responsive:true, animation:{duration:1000},
       scales:{
         y:{beginAtZero:false, title:{display:true,text:'Tesla (T)'}},
-        x:{ title:{display:true,text:'Time'}}
+        x:{title:{display:true,text:'Time'}}
       }
     }
   });
@@ -84,6 +89,7 @@ function processData(data) {
 
   const latest = readings[readings.length - 1];
   const B      = parseFloat(latest.magneticField) || 0;
+  currentMagneticField = B;                    // simpan untuk field meter
   magneticValueEl.textContent = B.toFixed(6)+' T';
   lastUpdateEl.textContent    = new Date().toLocaleTimeString();
 
@@ -95,9 +101,8 @@ function processData(data) {
   updateChart(readings);
   updateTable(readings);
   updateMagnetViz(B);
-  if (fieldMeterEnabled) {
-      updateFieldMeter();
-  }
+
+  if (fieldMeterEnabled) updateFieldMeter();
 }
 
 function updateChart(readings) {
@@ -106,6 +111,7 @@ function updateChart(readings) {
   magneticChart.data.datasets[0].data = dr.map(r=>parseFloat(r.magneticField)||0);
   magneticChart.update();
 }
+
 function updateTable(readings) {
   dataTableEl.innerHTML = '';
   readings.slice(-10).reverse().forEach(r=>{
@@ -136,145 +142,109 @@ function handleAutoSpeakToggle() {
   }
 }
 
-// === updateMagnetViz: semua span selalu berputar menuju arah B ===
+// === VISUALIZATION UPDATE ===
 function updateMagnetViz(B) {
-  // strength of effect [0..1]
-  const amplitudeScale = Math.min(Math.abs(B) * 5, 1);
-  const sign           = B >= 0 ? 1 : -1;
-  const duration       = 2;    // detik
-  const interval       = 0.1;  // delay antar-kolom (s)
+  const amplitudeScale = Math.min(Math.abs(B)*5, 1);
+  const sign           = B>=0?1:-1;
+  const duration       = 2;
+  const interval       = 0.1;
 
   vizItems.forEach((el, idx) => {
-    const col    = idx % COLS;
-    const dNorm  = col / (COLS - 1);       // [0..1] dari kiri→kanan
-    // compute per-span strength: dekat kutub lebih besar
-    const t      = 1 - dNorm;               // [1..0]
-    const angle  = sign * maxAngle * t * amplitudeScale;
-    const dx     = -sign * maxShift * t * amplitudeScale;
-    const delay  = col * interval;         // tiap kolom delay bertambah
+    const col   = idx % COLS;
+    const dNorm = col / (COLS - 1);
+    const t     = 1 - dNorm;
+    const ang   = sign * maxAngle * t * amplitudeScale;
+    const dx    = -sign * maxShift * t * amplitudeScale;
+    const delay = col * interval;
 
-    // set custom properties dengan satuan yang benar
-    el.style.setProperty('--ang', `${angle}deg`);
+    el.style.setProperty('--ang', `${ang}deg`);
     el.style.setProperty('--dx',  `${dx}px`);
     el.style.setProperty('--delay', `${delay}s`);
     el.style.setProperty('--duration', `${duration}s`);
   });
 }
 
-// Field meter functions
-function calculateFieldAtPosition(x, y, containerRect) {
-    // Normalize position to [-1, 1] range
-    const normalizedX = (x - containerRect.width / 2) / (containerRect.width / 2);
-    const normalizedY = (y - containerRect.height / 2) / (containerRect.height / 2);
-    
-    // Distance from center affects field strength
-    const distance = Math.sqrt(normalizedX * normalizedX + normalizedY * normalizedY);
-    const baseMagnitude = currentMagneticField * 10000; // Convert to Gauss and scale
-    
-    // Simulate field variation based on position
-    const magnitude = baseMagnitude * (1 + 0.3 * Math.sin(normalizedX * Math.PI) * Math.cos(normalizedY * Math.PI));
-    
-    // Calculate components
-    const Bx = magnitude * Math.cos(normalizedX + normalizedY);
-    const By = magnitude * Math.sin(normalizedX - normalizedY) * 0.3; // Smaller Y component
-    const B = Math.sqrt(Bx * Bx + By * By);
-    
-    // Calculate angle
-    const theta = Math.atan2(By, Bx) * 180 / Math.PI;
-    
-    return { B, Bx, By, theta };
+// === FIELD METER ===
+function calculateFieldAtPosition(x, y, bounds) {
+  // normalized [-1..1]
+  const nx = (x - bounds.width/2)/(bounds.width/2);
+  const ny = (y - bounds.height/2)/(bounds.height/2);
+  // base in Gauss
+  const base = currentMagneticField * 10000;
+  const mag  = base * (1 + 0.3*Math.sin(nx*Math.PI)*Math.cos(ny*Math.PI));
+  const Bx   = mag * Math.cos(nx+ny);
+  const By   = mag * Math.sin(nx-ny)*0.3;
+  const B    = Math.sqrt(Bx*Bx + By*By);
+  const theta= Math.atan2(By, Bx)*180/Math.PI;
+  return { B, Bx, By, theta };
 }
 
 function updateFieldMeter() {
-    if (!fieldMeterEnabled) return;
-    
-    const container = document.querySelector('.visualization-container');
-    const containerRect = container.getBoundingClientRect();
-    const fieldMeterRect = fieldMeter.getBoundingClientRect();
-    
-    // Get field meter center position relative to container
-    const centerX = fieldMeterRect.left + fieldMeterRect.width / 2 - containerRect.left;
-    const centerY = fieldMeterRect.top + fieldMeterRect.height / 2 - containerRect.top;
-    
-    const field = calculateFieldAtPosition(centerX, centerY, containerRect);
-    
-    // Update field meter display
-    fieldMeterB.textContent = `${field.B.toFixed(2)} G`;
-    fieldMeterBx.textContent = `${field.Bx.toFixed(2)} G`;
-    fieldMeterBy.textContent = `${field.By.toFixed(2)} G`;
-    fieldMeterTheta.textContent = `${field.theta.toFixed(0)}°`;
+  const bnds = containerRect();
+  const fmBnds = fieldMeter.getBoundingClientRect();
+  const cx = fmBnds.left + fmBnds.width/2  - bnds.left;
+  const cy = fmBnds.top  + fmBnds.height/2 - bnds.top;
+  const {B, Bx, By, theta} = calculateFieldAtPosition(cx, cy, bnds);
+  fieldMeterB.textContent     = `${B.toFixed(2)} G`;
+  fieldMeterBx.textContent    = `${Bx.toFixed(2)} G`;
+  fieldMeterBy.textContent    = `${By.toFixed(2)} G`;
+  fieldMeterTheta.textContent = `${theta.toFixed(0)}°`;
 }
 
 function toggleFieldMeter() {
-    fieldMeterEnabled = fieldMeterToggle.checked;
-    
-    if (fieldMeterEnabled) {
-        fieldMeter.style.display = 'block';
-        // Position at center initially
-        const container = document.querySelector('.visualization-container');
-        const containerRect = container.getBoundingClientRect();
-        fieldMeter.style.left = `${containerRect.width / 2 - 60}px`;
-        fieldMeter.style.top = `${containerRect.height / 2 - 40}px`;
-        updateFieldMeter();
-    } else {
-        fieldMeter.style.display = 'none';
-    }
-}
-
-// Drag functionality
-function startDrag(e) {
-    if (!fieldMeterEnabled) return;
-    
-    isDragging = true;
-    fieldMeter.classList.add('dragging');
-    
-    const rect = fieldMeter.getBoundingClientRect();
-    const clientX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
-    const clientY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
-    
-    dragOffset.x = clientX - rect.left;
-    dragOffset.y = clientY - rect.top;
-    
-    e.preventDefault();
-}
-
-function drag(e) {
-    if (!isDragging || !fieldMeterEnabled) return;
-    
-    const container = document.querySelector('.visualization-container');
-    const containerRect = container.getBoundingClientRect();
-    
-    const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
-    const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
-    
-    let newX = clientX - containerRect.left - dragOffset.x;
-    let newY = clientY - containerRect.top - dragOffset.y;
-    
-    // Keep within container bounds
-    const meterRect = fieldMeter.getBoundingClientRect();
-    newX = Math.max(0, Math.min(newX, containerRect.width - meterRect.width));
-    newY = Math.max(0, Math.min(newY, containerRect.height - meterRect.height));
-    
-    fieldMeter.style.left = `${newX}px`;
-    fieldMeter.style.top = `${newY}px`;
-    
+  fieldMeterEnabled = fieldMeterToggle.checked;
+  fieldMeter.style.display = fieldMeterEnabled ? 'block' : 'none';
+  if (fieldMeterEnabled) {
+    // center it
+    const bnds = containerRect();
+    fieldMeter.style.left = `${(bnds.width - fieldMeter.offsetWidth)/2}px`;
+    fieldMeter.style.top  = `${(bnds.height - fieldMeter.offsetHeight)/2}px`;
     updateFieldMeter();
-    e.preventDefault();
+  }
 }
 
-function endDrag() {
-    if (isDragging) {
-        isDragging = false;
-        fieldMeter.classList.remove('dragging');
-    }
+// === DRAG LISTENERS ===
+function startDrag(e) {
+  if (!fieldMeterEnabled) return;
+  isDragging = true;
+  const bnds = fieldMeter.getBoundingClientRect();
+  const cx   = (e.touches? e.touches[0].clientX: e.clientX);
+  const cy   = (e.touches? e.touches[0].clientY: e.clientY);
+  dragOffset.x = cx - bnds.left;
+  dragOffset.y = cy - bnds.top;
+  e.preventDefault();
 }
+function onDrag(e) {
+  if (!isDragging) return;
+  const bnds = containerRect();
+  const cx   = (e.touches? e.touches[0].clientX: e.clientX);
+  const cy   = (e.touches? e.touches[0].clientY: e.clientY);
+  let nx = cx - bnds.left - dragOffset.x;
+  let ny = cy - bnds.top  - dragOffset.y;
+  // constrain
+  nx = Math.max(0, Math.min(nx, bnds.width  - fieldMeter.offsetWidth));
+  ny = Math.max(0, Math.min(ny, bnds.height - fieldMeter.offsetHeight));
+  fieldMeter.style.left = `${nx}px`;
+  fieldMeter.style.top  = `${ny}px`;
+  updateFieldMeter();
+  e.preventDefault();
+}
+function endDrag() { isDragging = false; }
 
-
-// === EVENT LISTENERS ===
+// === EVENT BINDING ===
 document.addEventListener('DOMContentLoaded', () => {
   initChart();
   fetchData().then(processData);
   setInterval(()=>fetchData().then(processData), 5000);
+
   speakBtn.addEventListener('click', ()=>speakValue(parseFloat(magneticValueEl.textContent)||0));
   toggleAutoSpeakBtn.addEventListener('click', handleAutoSpeakToggle);
+
+  fieldMeterToggle.addEventListener('change', toggleFieldMeter);
+  fieldMeter.addEventListener('mousedown',  startDrag);
+  fieldMeter.addEventListener('touchstart', startDrag, {passive:false});
+  document.addEventListener('mousemove',    onDrag);
+  document.addEventListener('touchmove',    onDrag, {passive:false});
+  document.addEventListener('mouseup',      endDrag);
+  document.addEventListener('touchend',     endDrag);
 });
