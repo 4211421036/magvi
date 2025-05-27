@@ -161,11 +161,35 @@
             </div>
         </section>
     </main>
+    <div
+      id="dynamicModal"
+      class="modal fade"
+      tabindex="-1"
+      role="dialog"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="swipeableModalContent">
+          <div class="modal-header">
+            <h5 class="modal-title" id="dynamicModalTitle"></h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="dynamicModalBody">
+            <!-- Dynamic content inserted here -->
+          </div>
+        </div>
+      </div>
+    </div>
     <div id="languageModal" class="language-modal" role="dialog" aria-modal="true" aria-labelledby="languageModalTitle" aria-hidden="true">
       <div class="modal-handle" tabindex="0" aria-label="Modal handle" role="button"></div>
-      <h4 id="languageModalTitle" class="modal-title">Select Language</h4>
+      <h4 id="languageModalTitle" class="modal-title" lang="id">Pilih Bahasa</h4>
       <div class="modal-options" role="menu">
-        <button class="lang-option" data-lang="id" aria-label="Change to Bahasa Indonesia" role="menuitemradio" aria-checked="false">Bahasa Indonesia</button>
+        <button class="lang-option" data-lang="id" aria-label="Change to Bahasa Indonesia" role="menuitemradio" aria-checked="false" lang="id">Bahasa Indonesia</button>
         <button class="lang-option" data-lang="en" aria-label="Change to English" role="menuitemradio" aria-checked="true">English</button>
       </div>
     </div>
