@@ -279,7 +279,7 @@ const cardInfo = {
     title: 'Magnetic Field Value Formula',
     html: `
       <div class="formulation-container">
-        <h4>1. Voltage Reading and Signal Processing</h4>
+        <h3>1. Voltage Reading and Signal Processing</h3>
         <p>The voltage measurement employs digital signal averaging to minimize noise interference:</p>
         <div class="formula-block">
           <strong>V<sub>avg</sub> = <span class="fraction">1<span class="divisor">n</span></span> × Σ<sub>i=1</sub><sup>n</sup> V<sub>ADC,i</sub> × <span class="fraction">V<sub>ref</sub><span class="divisor">2<sup>m</sup> - 1</span></span></strong>
@@ -293,7 +293,7 @@ const cardInfo = {
           <li><strong>m</strong> = ADC resolution bits (10-bit = 1023 max count)</li>
         </ul>
         
-        <h4>2. Zero-Field Calibration</h4>
+        <h3>2. Zero-Field Calibration</h3>
         <p>The quiescent voltage represents the sensor output under zero magnetic field conditions:</p>
         <div class="formula-block">
           <strong>V<sub>Q</sub> = V<sub>avg</sub>|<sub>B=0</sub></strong>
@@ -305,7 +305,7 @@ const cardInfo = {
           <li>Supply voltage fluctuations</li>
         </ul>
 
-        <h4>3. Magnetic Field in Gauss</h4>
+        <h3>3. Magnetic Field in Gauss</h3>
         <p>The magnetic field intensity is calculated using the differential voltage method:</p>
         <div class="formula-block">
           <strong>B<sub>Gauss</sub> = <span class="fraction">(V<sub>out</sub> - V<sub>Q</sub>)<span class="divisor">S</span></span></strong>
@@ -318,21 +318,21 @@ const cardInfo = {
           <li><strong>S</strong> = Sensor sensitivity (V/Gauss)</li>
         </ul>
 
-        <h4>4. Magnetic Field in Tesla (SI Unit)</h4>
+        <h3>4. Magnetic Field in Tesla (SI Unit)</h3>
         <p>Conversion from Gauss to Tesla follows the standard electromagnetic unit relationship:</p>
         <div class="formula-block">
           <strong>B<sub>Tesla</sub> = <span class="fraction">B<sub>Gauss</sub><span class="divisor">10<sup>4</sup></span></span></strong>
         </div>
         <p>Since: <strong>1 Tesla = 10,000 Gauss</strong></p>
 
-        <h4>5. Complete Mathematical Substitution</h4>
+        <h3>5. Complete Mathematical Substitution</h3>
         <p>Substituting all equations yields the final expression:</p>
         <div class="formula-block">
           <strong>B<sub>T</sub> = <span class="fraction">1<span class="divisor">10<sup>4</sup> × S</span></span> × [<span class="fraction">1<span class="divisor">n</span></span> × Σ<sub>i=1</sub><sup>n</sup> V<sub>ADC,i</sub> × <span class="fraction">V<sub>ref</sub><span class="divisor">2<sup>m</sup> - 1</span></span> - V<sub>Q</sub>]</strong>
         </div>
 
         <div class="code-implementation">
-          <h5>C++ Implementation Reference:</h5>
+          <h4>C++ Implementation Reference:</h4>
           <pre><code>// Voltage averaging with noise reduction
 float MagnetSensor::readVoltage() {
   float sum = 0;
@@ -361,7 +361,7 @@ float MagnetSensor::getFieldTesla() {
         </div>
 
         <div class="technical-notes">
-          <h5>Technical Considerations:</h5>
+          <h3>Technical Considerations:</h3>
           <ul>
             <li><strong>Sampling Rate:</strong> 100μs delay ensures proper sensor response time (3μs) compliance</li>
             <li><strong>Resolution:</strong> 10-bit ADC provides ~4.9mV resolution with 5V reference</li>
