@@ -264,8 +264,10 @@ const cardInfo = {
   }
 };
 
+// Initialize modal triggers: use Bootstrap data attributes
 function initModals() {
-  document.querySelectorAll('.card[role="region"]').forEach(card => {
+  const cards = document.querySelectorAll('.card[role="region"]');
+  cards.forEach(card => {
     const header = card.querySelector('.card-header');
     header.classList.add('d-flex', 'justify-content-between', 'align-items-center');
 
@@ -273,45 +275,54 @@ function initModals() {
     btn.type = 'button';
     btn.className = 'btn btn-link p-0 ' + (header.classList.contains('text-white') ? 'text-white' : 'text-dark');
     btn.setAttribute('aria-label', 'More info');
+    btn.setAttribute('data-bs-toggle', 'modal');
+    btn.setAttribute('data-bs-target', '#dynamicModal');
+
+    // Store key for later
+    const key = card.getAttribute('data-information');
+    btn.dataset.infoKey = key;
     btn.innerHTML = '<i class="bi bi-three-dots-vertical"></i>';
-    btn.addEventListener('click', () => openModal(card));
+
     header.appendChild(btn);
   });
 }
 
-// Open a Bootstrap modal with dynamic content
-function openModal(card) {
-  const key = card.getAttribute('data-information');
-  const info = cardInfo[key];
-  if (!info) return;
-
-  // Set modal content
-  document.getElementById('dynamicModalTitle').innerText = info.title;
-  document.getElementById('dynamicModalBody').innerHTML = info.html;
-
-  // Initialize and show modal properly
+// Populate modal content on show
+function setupModalPopulation() {
   const modalEl = document.getElementById('dynamicModal');
-  const modalInstance = new bootstrap.Modal(modalEl);
-  modalInstance.show();
+  modalEl.addEventListener('show.bs.modal', event => {
+    const triggerBtn = event.relatedTarget;
+    const key = triggerBtn.dataset.infoKey;
+    const info = cardInfo[key] || {};
+    document.getElementById('dynamicModalTitle').innerText = info.title || '';
+    document.getElementById('dynamicModalBody').innerHTML = info.html || '';
+  });
 }
 
-// Swipe-to-dismiss logic
+// Custom close for swipe without bootstrap globals
 function enableSwipeToDismiss() {
-  const mc = document.getElementById('swipeableModalContent');
+  const content = document.getElementById('swipeableModalContent');
   let yStart = null;
-
-  mc.addEventListener('touchstart', e => {
-    yStart = e.touches[0].clientY;
-  });
-  mc.addEventListener('touchmove', e => {
+  content.addEventListener('touchstart', e => { yStart = e.touches[0].clientY; });
+  content.addEventListener('touchmove', e => {
     const y = e.touches[0].clientY;
     if (yStart !== null && y - yStart > 80) {
-      const modalEl = document.getElementById('dynamicModal');
-      bootstrap.Modal.getInstance(modalEl).hide();
+      closeModal();
       yStart = null;
     }
   });
-  mc.addEventListener('touchend', () => { yStart = null; });
+  content.addEventListener('touchend', () => { yStart = null; });
+}
+
+function closeModal() {
+  const modalEl = document.getElementById('dynamicModal');
+  // hide
+  modalEl.classList.remove('show');
+  modalEl.setAttribute('aria-hidden', 'true');
+  modalEl.style.display = 'none';
+  // remove backdrop
+  const backdrop = document.querySelector('.modal-backdrop');
+  if (backdrop) backdrop.remove();
 }
 
 // === VISUALIZATION UPDATE ===
