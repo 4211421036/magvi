@@ -265,55 +265,41 @@ const cardInfo = {
 };
 
 function initModals() {
-  const cards = document.querySelectorAll('.card[role="region"]');
-  cards.forEach(card => {
+  document.querySelectorAll('.card[role="region"]').forEach(card => {
     const header = card.querySelector('.card-header');
+    // ensure flex
     header.classList.add('d-flex', 'justify-content-between', 'align-items-center');
 
     const btn = document.createElement('button');
-    btn.classList.add('btn', 'btn-link', 'p-0');
-    btn.setAttribute('aria-label', 'More info');
+    btn.type = 'button';
+    btn.className = 'btn btn-link p-0';
+    // icon color based on header
+    btn.classList.add(header.classList.contains('text-white') ? 'text-white' : 'text-dark');
     btn.innerHTML = '<i class="bi bi-three-dots-vertical"></i>';
-
-    // adapt icon color to header text color
-    if (header.classList.contains('text-white')) {
-      btn.classList.add('text-white');
-    } else {
-      btn.classList.add('text-dark');
-    }
-
     btn.addEventListener('click', () => openModal(card));
     header.appendChild(btn);
   });
 }
 
+// Open a Bootstrap modal with dynamic content
 function openModal(card) {
   const key = card.getAttribute('data-information');
-  if (!cardInfo[key]) return;
-  const modalTitle = document.getElementById('dynamicModalTitle');
-  const modalBody = document.getElementById('dynamicModalBody');
-  modalTitle.innerText = cardInfo[key].title;
-  modalBody.innerHTML = cardInfo[key].html;
-
-  const modalEl = document.getElementById('dynamicModal');
-  const bsModal = new bootstrap.Modal(modalEl);
-  bsModal.show();
+  const info = cardInfo[key];
+  if (!info) return;
+  document.getElementById('dynamicModalTitle').innerText = info.title;
+  document.getElementById('dynamicModalBody').innerHTML = info.html;
+  new bootstrap.Modal('#dynamicModal').show();
 }
 
+// Swipe-to-dismiss logic
 function enableSwipeToDismiss() {
-  const modalContent = document.getElementById('swipeableModalContent');
-  let startY = null;
-
-  modalContent.addEventListener('touchstart', e => startY = e.touches[0].clientY);
-  modalContent.addEventListener('touchmove', e => {
-    if (startY === null) return;
-    const deltaY = e.touches[0].clientY - startY;
-    if (deltaY > 50) {
-      bootstrap.Modal.getInstance(document.getElementById('dynamicModal')).hide();
-      startY = null;
-    }
+  const mc = document.getElementById('swipeableModalContent');
+  let yStart;
+  mc.addEventListener('touchstart', e => yStart = e.touches[0].clientY);
+  mc.addEventListener('touchmove', e => {
+    const y = e.touches[0].clientY;
+    if (y - yStart > 80) bootstrap.Modal.getInstance('#dynamicModal').hide();
   });
-  modalContent.addEventListener('touchend', () => startY = null);
 }
 
 // === VISUALIZATION UPDATE ===
