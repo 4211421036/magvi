@@ -63,6 +63,7 @@ if (isTouchDevice()) {
 
   infoIcon.addEventListener("click", () => {
     mdl.classList.add("active");
+    document.body.classList.add('modal-open');
     mdl.style.transition = 'transform 0.3s ease';
     mdl.style.transform = 'translateY(0%)';
   });
@@ -93,6 +94,7 @@ if (isTouchDevice()) {
       mdl.style.transform = 'translateY(100%)';
       setTimeout(() => {
         mdl.classList.remove("active");
+        document.body.classList.remove('modal-open');
       }, 200);
     } else {
       // revert back
