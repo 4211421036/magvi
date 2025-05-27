@@ -403,3 +403,9 @@ h3 {
 sub, sup {
   font-size: 0.8em;
 }
+
+@media (min-width: 1024px) {
+    .formulation-container {
+      max-width: -webkit-fill-available;
+    }
+}
