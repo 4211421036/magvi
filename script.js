@@ -267,14 +267,12 @@ const cardInfo = {
 function initModals() {
   document.querySelectorAll('.card[role="region"]').forEach(card => {
     const header = card.querySelector('.card-header');
-    // ensure flex
     header.classList.add('d-flex', 'justify-content-between', 'align-items-center');
 
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'btn btn-link p-0';
-    // icon color based on header
-    btn.classList.add(header.classList.contains('text-white') ? 'text-white' : 'text-dark');
+    btn.className = 'btn btn-link p-0 ' + (header.classList.contains('text-white') ? 'text-white' : 'text-dark');
+    btn.setAttribute('aria-label', 'More info');
     btn.innerHTML = '<i class="bi bi-three-dots-vertical"></i>';
     btn.addEventListener('click', () => openModal(card));
     header.appendChild(btn);
@@ -286,20 +284,34 @@ function openModal(card) {
   const key = card.getAttribute('data-information');
   const info = cardInfo[key];
   if (!info) return;
+
+  // Set modal content
   document.getElementById('dynamicModalTitle').innerText = info.title;
   document.getElementById('dynamicModalBody').innerHTML = info.html;
-  new bootstrap.Modal('#dynamicModal').show();
+
+  // Initialize and show modal properly
+  const modalEl = document.getElementById('dynamicModal');
+  const modalInstance = new bootstrap.Modal(modalEl);
+  modalInstance.show();
 }
 
 // Swipe-to-dismiss logic
 function enableSwipeToDismiss() {
   const mc = document.getElementById('swipeableModalContent');
-  let yStart;
-  mc.addEventListener('touchstart', e => yStart = e.touches[0].clientY);
+  let yStart = null;
+
+  mc.addEventListener('touchstart', e => {
+    yStart = e.touches[0].clientY;
+  });
   mc.addEventListener('touchmove', e => {
     const y = e.touches[0].clientY;
-    if (y - yStart > 80) bootstrap.Modal.getInstance('#dynamicModal').hide();
+    if (yStart !== null && y - yStart > 80) {
+      const modalEl = document.getElementById('dynamicModal');
+      bootstrap.Modal.getInstance(modalEl).hide();
+      yStart = null;
+    }
   });
+  mc.addEventListener('touchend', () => { yStart = null; });
 }
 
 // === VISUALIZATION UPDATE ===
