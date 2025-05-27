@@ -403,30 +403,3 @@ h3 {
 sub, sup {
   font-size: 0.8em;
 }
-
-@media (min-width: 1024px) {
-  /* 1. Posisikan modal-dialog jadi fixed di kanan */
-  #dynamicModal .modal-dialog {
-    position: fixed;
-    top: 0;
-    right: 0;
-    margin: 0;
-    width: 100%;
-    max-width: 30%;
-    height: 100vh;     /* full height */
-  }
-  /* 2. Agar konten modal juga full height */
-  #dynamicModal .modal-content {
-    height: 100%;
-    border-radius: 0;  /* optional: hilangkan sudut bulat */
-  }
-  /* 3. Sembunyikan backdrop gelap full-screen */
-  .modal-backdrop.show {
-    opacity: 0;        /* atau display: none; jika mau */
-  }
-}
-
-.mcd {
-    right: 280px;
-    position: relative;
-}
