@@ -404,6 +404,13 @@ sub, sup {
   font-size: 0.8em;
 }
 
+.carf {
+    position: absolute;
+    width: 100px;
+    left: 35%;
+    top: 65px;
+}
+
 @media (min-width: 1024px) {
     .formulation-container {
       max-width: -webkit-fill-available;
