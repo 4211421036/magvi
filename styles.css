@@ -167,6 +167,55 @@ body {
     margin-right: 10px;
 }
 
+.language-modal {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  max-height: 40%;
+  background: #fff;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  padding: 1rem;
+  z-index: 999;
+  touch-action: none;  /* supress default touch handling */
+}
+.language-modal.open {
+  transform: translateY(0);
+}
+.modal-handle {
+  width: 40px;
+  height: 4px;
+  background: #ccc;
+  border-radius: 2px;
+  margin: 0 auto 0.5rem;
+}
+.modal-title {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+.modal-options {
+  display: flex;
+  justify-content: space-around;
+}
+.modal-options .lang-option {
+  flex: 1;
+  margin: 0 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  background: #f8f9fa;
+}
+.modal-options .lang-option.active {
+  background: #0d6efd;
+  color: #fff;
+  border-color: #0d6efd;
+}
+
+
 /* Responsive design */
 @media (max-width: 768px) {
     .field-meter {
