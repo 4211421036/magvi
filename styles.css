@@ -273,6 +273,11 @@ body {
     overflow-y: auto;
 }
 
+.db {
+    max-height: 100%;
+    overflow-y: auto;
+}
+
 .formulation-container {
   font-family: 'Times New Roman', serif;
   line-height: 1.6;
