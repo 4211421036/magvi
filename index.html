@@ -20,7 +20,7 @@
             <h2 id="live-values" class="visually-hidden">Live Magnetic Field Values</h2>
             <!-- Card 1: Value Display with Speech -->
             <div class="col-md-6 mb-4" role="article">
-                <div class="card shadow" role="region" aria-labelledby="magnetic-value-title">
+                <div class="card shadow" role="region" aria-labelledby="magnetic-value-title" data-information="magnetic-value">
                     <div class="card-header bg-primary text-white" role="heading" aria-level="3">
                         <h3 id="magnetic-value-title" class="card-title">Magnetic Field Value</h3>
                     </div>
@@ -56,7 +56,7 @@
 
             <!-- Card 2: Configuration Info -->
             <div class="col-md-6 mb-4" role="article">
-                <div class="card shadow" role="region" aria-labelledby="config-title">
+                <div class="card shadow" role="region" aria-labelledby="config-title" data-information="sensor-config">
                     <div class="card-header bg-info text-dark" role="heading" aria-level="3">
                         <h3 id="config-title" class="card-title">Sensor Configuration</h3>
                     </div>
@@ -80,7 +80,7 @@
         <!-- Chart Card -->
         <section aria-labelledby="history-title" class="mb-4" role="region">
             <h2 id="history-title" class="visually-hidden">Magnetic Field History Chart</h2>
-            <div class="card shadow" role="region">
+            <div class="card shadow" role="region" data-information="history-chart">
                 <div class="card-header bg-warning text-dark" role="heading" aria-level="3">
                     <h3 class="card-title">Magnetic Field History</h3>
                 </div>
@@ -94,7 +94,7 @@
         <!-- Magnet visualization -->
         <section aria-labelledby="viz-title" class="mb-4" role="region">
             <h2 id="viz-title" class="visually-hidden">Magnetic Field Visualization</h2>
-            <div class="card shadow" role="region">
+            <div class="card shadow" role="region" data-information="field-viz">
                 <div class="card-header bg-warning text-dark" role="heading" aria-level="3">
                     <h3 class="card-title">Magnetic Field Visualization</h3>
                 </div>
@@ -138,7 +138,7 @@
         <!-- Raw Data Card -->
         <section aria-labelledby="rawdata-title" role="region">
             <h2 id="rawdata-title" class="visually-hidden">Raw Data Table</h2>
-            <div class="card shadow" role="region">
+            <div class="card shadow" role="region" data-information="raw-data">
                 <div class="card-header bg-secondary text-white" role="heading" aria-level="3">
                     <h3 class="card-title">Raw Data</h3>
                 </div>
@@ -160,31 +160,18 @@
                 </div>
             </div>
         </section>
-    </main>
-    <div
-      id="dynamicModal"
-      class="modal fade"
-      tabindex="-1"
-      role="dialog"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content" id="swipeableModalContent">
-          <div class="modal-header">
-            <h5 class="modal-title" id="dynamicModalTitle"></h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body" id="dynamicModalBody">
-            <!-- Dynamic content inserted here -->
+        <div id="dynamicModal" class="modal fade" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content" id="swipeableModalContent">
+              <div class="modal-header">
+                <h5 class="modal-title" id="dynamicModalTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body" id="dynamicModalBody"></div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+    </main>
     <div id="languageModal" class="language-modal" role="dialog" aria-modal="true" aria-labelledby="languageModalTitle" aria-hidden="true">
       <div class="modal-handle" tabindex="0" aria-label="Modal handle" role="button"></div>
       <h4 id="languageModalTitle" class="modal-title" lang="id">Pilih Bahasa</h4>
