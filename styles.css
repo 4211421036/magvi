@@ -215,6 +215,13 @@ body {
   border-color: #0d6efd;
 }
 
+.modal-content {
+  touch-action: none;
+  transition: transform 0.3s ease;
+}
+.modal.swipe-dismiss .modal-dialog {
+  transform: translateY(100vh);
+}
 
 /* Responsive design */
 @media (max-width: 768px) {
