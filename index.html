@@ -30,6 +30,10 @@
                             <button id="speakBtn" class="btn btn-success me-2" aria-label="Read magnetic field value aloud">
                                 <i class="bi bi-volume-up" aria-hidden="true"></i> Read Value
                             </button>
+                            <button id="langBtn" class="btn btn-secondary" 
+                                    style="position:fixed; bottom:1rem; right:1rem; z-index:1000;">
+                              <i class="bi bi-translate"></i>
+                            </button>
                             <button id="toggleAutoSpeak" class="btn btn-outline-primary" aria-pressed="false" aria-label="Toggle automatic reading of magnetic field value">
                                 <i class="bi bi-megaphone" aria-hidden="true"></i> Auto-Read: OFF
                             </button>
@@ -147,6 +151,14 @@
             </div>
         </section>
     </main>
+    <div id="languageModal" class="language-modal" role="dialog" aria-modal="true">
+      <div class="modal-handle"></div>
+      <h5 class="modal-title">Pilih Bahasa</h5>
+      <div class="modal-options">
+        <button class="lang-option" data-lang="id">Bahasa Indonesia</button>
+        <button class="lang-option" data-lang="en">English</button>
+      </div>
+    </div>
 
     <footer role="contentinfo" class="container mt-4 mb-4 text-center">
         <small>&copy; 2025 Magnet Visualization Project</small>
