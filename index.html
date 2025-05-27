@@ -107,8 +107,7 @@
                             </label>
                         </div>
                         <small class="text-muted" role="note">
-                            <i class="bi bi-info-circle" aria-hidden="true"></i>  
-                            Enable field meter to measure magnetic field strength at any position. Drag to move around.
+                            <i class="bi bi-info-circle" aria-hidden="true" id="infoIcon" title="Enable field meter to measure magnetic field strength at any position. Drag to move around."></i>
                         </small>
                     </div>
                     <div id="magnetViz" class="magnet-viz mt-4" role="application" aria-label="Interactive magnetic field visualization" tabindex="0"></div>
@@ -169,6 +168,12 @@
               </div>
               <div class="modal-body db" id="dynamicModalBody"></div>
             </div>
+          </div>
+        </div>
+        <div id="infoModal">
+          <div class="content">
+            <i class="bi bi-info-circle"></i>
+            <span>Enable field meter to measure magnetic field strength at any position. Drag to move around.</span>
           </div>
         </div>
     </main>
