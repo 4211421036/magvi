@@ -361,7 +361,7 @@ float MagnetSensor::getFieldTesla() {
         </div>
 
         <div class="technical-notes">
-          <h3>Technical Considerations:</h3>
+          <h4>Technical Considerations:</h4>
           <ul>
             <li><strong>Sampling Rate:</strong> 100μs delay ensures proper sensor response time (3μs) compliance</li>
             <li><strong>Resolution:</strong> 10-bit ADC provides ~4.9mV resolution with 5V reference</li>
