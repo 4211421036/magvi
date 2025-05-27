@@ -89,7 +89,7 @@ if (isTouchDevice()) {
     const delta = currentY - startY;
 
     mdl.style.transition = 'transform 0.2s ease';
-    if (delta > 100) {
+    if (delta > 20) {
       // close
       mdl.style.transform = 'translateY(100%)';
       setTimeout(() => {
