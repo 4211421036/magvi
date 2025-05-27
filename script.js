@@ -51,6 +51,7 @@ const langOptions  = languageModal.querySelectorAll('.lang-option');
 
 langBtn.addEventListener('click', () => {
   languageModal.classList.add('open');
+  document.body.classList.add('modal-open');
 });
 
 // pilih bahasa
@@ -61,6 +62,7 @@ langOptions.forEach(btn => {
     btn.classList.add('active');
     // tutup modal setelah pilih
     languageModal.classList.remove('open');
+    document.body.classList.remove('modal-open');
   });
 });
 
@@ -85,6 +87,7 @@ languageModal.addEventListener('touchend', e => {
   if (delta > 80) {
     // dismiss
     languageModal.classList.remove('open');
+    document.body.classList.remove('modal-open');
   }
   // reset
   languageModal.style.transform = '';
