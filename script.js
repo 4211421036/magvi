@@ -42,6 +42,58 @@ const cellH = () => wrapperRect().height / COLS;
 const container = vizWrapper.parentElement;
 const containerRect = () => container.getBoundingClientRect();
 
+// --- LANGUAGE MODAL SETUP ---
+let selectedLang = 'id';  // default Bahasa Indonesia
+
+const langBtn      = document.getElementById('langBtn');
+const languageModal= document.getElementById('languageModal');
+const langOptions  = languageModal.querySelectorAll('.lang-option');
+
+langBtn.addEventListener('click', () => {
+  languageModal.classList.add('open');
+});
+
+// pilih bahasa
+langOptions.forEach(btn => {
+  btn.addEventListener('click', () => {
+    selectedLang = btn.dataset.lang;
+    langOptions.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    // tutup modal setelah pilih
+    languageModal.classList.remove('open');
+  });
+});
+
+// swipe-to-dismiss
+let startY = 0, currentY = 0, dragging = false;
+languageModal.addEventListener('touchstart', e => {
+  startY = e.touches[0].clientY;
+  dragging = true;
+});
+languageModal.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  currentY = e.touches[0].clientY;
+  const delta = currentY - startY;
+  if (delta > 0) {
+    languageModal.style.transform = `translateY(${delta}px)`;
+  }
+});
+languageModal.addEventListener('touchend', e => {
+  dragging = false;
+  const delta = currentY - startY;
+  languageModal.style.transition = 'transform 0.2s ease';
+  if (delta > 80) {
+    // dismiss
+    languageModal.classList.remove('open');
+  }
+  // reset
+  languageModal.style.transform = '';
+  setTimeout(() => {
+    languageModal.style.transition = '';
+  }, 200);
+});
+
+
 // --- init grid span (9×9) ---
 for (let i = 0; i < COLS * COLS; i++) {
   const span = document.createElement('span');
@@ -130,9 +182,18 @@ function updateTable(readings) {
 function speakValue(v) {
   if (!speechSynthesis) return;
   if (speechSynthesis.speaking) speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(`Magnetic field is ${v.toFixed(6)} Tesla`);
-  u.rate = 0.9;
-  speechSynthesis.speak(u);
+
+  const utter = new SpeechSynthesisUtterance();
+  // atur bahasa dan teks
+  if (selectedLang === 'en') {
+    utter.lang = 'en-US';
+    utter.text = `Magnetic field is ${v.toFixed(6)} Tesla.`;
+  } else {
+    utter.lang = 'id-ID';
+    utter.text = `Medan magnet adalah ${v.toFixed(6)} Tesla.`;
+  }
+  utter.rate = 0.9;
+  speechSynthesis.speak(utter);
 }
 
 function handleAutoSpeakToggle() {
@@ -140,7 +201,7 @@ function handleAutoSpeakToggle() {
   if (autoSpeakEnabled) {
     toggleAutoSpeakBtn.innerHTML = '<i class="bi bi-megaphone"></i> Auto-Read: ON';
     toggleAutoSpeakBtn.classList.replace('btn-outline-primary','btn-primary');
-    speakValue(parseFloat(magneticValueEl.textContent)||0);
+    speakValue(parseFloat(magneticValueEl.textContent) || 0);
   } else {
     toggleAutoSpeakBtn.innerHTML = '<i class="bi bi-megaphone"></i> Auto-Read: OFF';
     toggleAutoSpeakBtn.classList.replace('btn-primary','btn-outline-primary');
