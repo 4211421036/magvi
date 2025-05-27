@@ -221,28 +221,98 @@ const cardInfo = {
   'magnetic-value': {
     title: 'Magnetic Field Value Formula',
     html: `
-      <p>Formula untuk membaca tegangan sensor magnet:</p>
-      <pre><code>float readVoltage() {
+      <div class="formulation-container">
+        <h4>1. Voltage Reading and Signal Processing</h4>
+        <p>The voltage measurement employs digital signal averaging to minimize noise interference:</p>
+        <div class="formula-block">
+          <strong>V<sub>avg</sub> = <span class="fraction">1<span class="divisor">n</span></span> × Σ<sub>i=1</sub><sup>n</sup> V<sub>ADC,i</sub> × <span class="fraction">V<sub>ref</sub><span class="divisor">2<sup>m</sup> - 1</span></span></strong>
+        </div>
+        <p>Where:</p>
+        <ul>
+          <li><strong>V<sub>avg</sub></strong> = Average voltage reading (V)</li>
+          <li><strong>n</strong> = Number of samples</li>
+          <li><strong>V<sub>ADC,i</sub></strong> = i-th ADC reading (digital count)</li>
+          <li><strong>V<sub>ref</sub></strong> = Reference voltage (5.0 V)</li>
+          <li><strong>m</strong> = ADC resolution bits (10-bit = 1023 max count)</li>
+        </ul>
+        
+        <h4>2. Zero-Field Calibration</h4>
+        <p>The quiescent voltage represents the sensor output under zero magnetic field conditions:</p>
+        <div class="formula-block">
+          <strong>V<sub>Q</sub> = V<sub>avg</sub>|<sub>B=0</sub></strong>
+        </div>
+        <p>This calibration compensates for:</p>
+        <ul>
+          <li>DC offset variations</li>
+          <li>Temperature drift effects</li>
+          <li>Supply voltage fluctuations</li>
+        </ul>
+
+        <h4>3. Magnetic Field in Gauss</h4>
+        <p>The magnetic field intensity is calculated using the differential voltage method:</p>
+        <div class="formula-block">
+          <strong>B<sub>Gauss</sub> = <span class="fraction">(V<sub>out</sub> - V<sub>Q</sub>)<span class="divisor">S</span></span></strong>
+        </div>
+        <p>Where:</p>
+        <ul>
+          <li><strong>B<sub>Gauss</sub></strong> = Magnetic field strength (Gauss)</li>
+          <li><strong>V<sub>out</sub></strong> = Current sensor output voltage (V)</li>
+          <li><strong>V<sub>Q</sub></strong> = Quiescent voltage at zero field (V)</li>
+          <li><strong>S</strong> = Sensor sensitivity (V/Gauss)</li>
+        </ul>
+
+        <h4>4. Magnetic Field in Tesla (SI Unit)</h4>
+        <p>Conversion from Gauss to Tesla follows the standard electromagnetic unit relationship:</p>
+        <div class="formula-block">
+          <strong>B<sub>Tesla</sub> = <span class="fraction">B<sub>Gauss</sub><span class="divisor">10<sup>4</sup></span></span></strong>
+        </div>
+        <p>Since: <strong>1 Tesla = 10,000 Gauss</strong></p>
+
+        <h4>5. Complete Mathematical Substitution</h4>
+        <p>Substituting all equations yields the final expression:</p>
+        <div class="formula-block">
+          <strong>B<sub>T</sub> = <span class="fraction">1<span class="divisor">10<sup>4</sup> × S</span></span> × [<span class="fraction">1<span class="divisor">n</span></span> × Σ<sub>i=1</sub><sup>n</sup> V<sub>ADC,i</sub> × <span class="fraction">V<sub>ref</sub><span class="divisor">2<sup>m</sup> - 1</span></span> - V<sub>Q</sub>]</strong>
+        </div>
+
+        <div class="code-implementation">
+          <h5>C++ Implementation Reference:</h5>
+          <pre><code>// Voltage averaging with noise reduction
+float MagnetSensor::readVoltage() {
   float sum = 0;
-  for(int i=0; i<samples; i++) {
-    sum += analogRead(pin);
-    delayMicroseconds(100); // Respons 3μs
+  for(int i=0; i&lt;samples; i++) {
+    sum += analogRead(pin);           // V_ADC,i acquisition
+    delayMicroseconds(100);          // Anti-aliasing delay
   }
-  return (sum / samples) * (5.0 / 1023.0);
+  return (sum / samples) * (5.0 / 1023.0);  // V_avg calculation
+}
+
+// Zero-field calibration
+void MagnetSensor::calibrateZeroField() {
+  vQuiescent = readVoltage();        // V_Q determination
+}
+
+// Field calculation in Gauss
+float MagnetSensor::getFieldGauss() {
+  float vOut = readVoltage();        // V_out measurement
+  return (vOut - vQuiescent) / sensitivity;  // B_Gauss
+}
+
+// SI unit conversion
+float MagnetSensor::getFieldTesla() {
+  return getFieldGauss() / 10000.0;  // B_Tesla
 }</code></pre>
-      <p>Kalibrasi nol medan magnet:</p>
-      <pre><code>void calibrateZeroField() {
-  vQuiescent = readVoltage();
-}</code></pre>
-      <p>Dapatkan medan dalam Gauss:</p>
-      <pre><code>float getFieldGauss() {
-  float vOut = readVoltage();
-  return (vOut - vQuiescent) / sensitivity;
-}</code></pre>
-      <p>Dapatkan medan dalam Tesla:</p>
-      <pre><code>float getFieldTesla() {
-  return getFieldGauss() / 10000.0;
-}</code></pre>
+        </div>
+
+        <div class="technical-notes">
+          <h5>Technical Considerations:</h5>
+          <ul>
+            <li><strong>Sampling Rate:</strong> 100μs delay ensures proper sensor response time (3μs) compliance</li>
+            <li><strong>Resolution:</strong> 10-bit ADC provides ~4.9mV resolution with 5V reference</li>
+            <li><strong>Sensitivity:</strong> Typical Hall sensors: 1.3-5.0 mV/Gauss</li>
+            <li><strong>Noise Reduction:</strong> Multiple sampling reduces random noise by factor of √n</li>
+          </ul>
+        </div>
+      </div>
     `
   },
   'sensor-config': {
