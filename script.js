@@ -197,17 +197,26 @@ function speakValue(v) {
 }
 
 function handleAutoSpeakToggle() {
+  // Toggle state
   autoSpeakEnabled = !autoSpeakEnabled;
+
+  // Update ARIA state
+  toggleAutoSpeakBtn.setAttribute('aria-checked', String(autoSpeakEnabled));
+
+  // Update tampilan tombol
   if (autoSpeakEnabled) {
-    toggleAutoSpeakBtn.innerHTML = '<i class="bi bi-megaphone"></i> Auto-Read: ON';
-    toggleAutoSpeakBtn.classList.replace('btn-outline-primary','btn-primary');
-    speakValue(parseFloat(magneticValueEl.textContent) || 0);
+    toggleAutoSpeakBtn.innerHTML =
+      '<i class="bi bi-megaphone" aria-hidden="true"></i> Auto-Read: ON';
+    toggleAutoSpeakBtn.classList.replace('btn-outline-primary', 'btn-primary');
+    // Jalankan fungsi bicara dengan nilai terkini
+    const value = parseFloat(magneticValueEl.textContent) || 0;
+    speakValue(value);
   } else {
-    toggleAutoSpeakBtn.innerHTML = '<i class="bi bi-megaphone"></i> Auto-Read: OFF';
-    toggleAutoSpeakBtn.classList.replace('btn-primary','btn-outline-primary');
+    toggleAutoSpeakBtn.innerHTML =
+      '<i class="bi bi-megaphone" aria-hidden="true"></i> Auto-Read: OFF';
+    toggleAutoSpeakBtn.classList.replace('btn-primary', 'btn-outline-primary');
   }
 }
-
 // === VISUALIZATION UPDATE ===
 function updateMagnetViz(B) {
   const amplitudeScale = Math.min(Math.abs(B)*5, 1);
