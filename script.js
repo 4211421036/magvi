@@ -502,7 +502,7 @@ function addSwipeIndicator(header) {
   const indicator = document.createElement('div');
   indicator.style.cssText = `
     width: 40px;
-    height: 30px;
+    height: 7px;
     background: #ccc;
     border-radius: 12px;
     margin: 0px auto 0.001rem;
