@@ -217,6 +217,104 @@ function handleAutoSpeakToggle() {
     toggleAutoSpeakBtn.classList.replace('btn-primary', 'btn-outline-primary');
   }
 }
+
+const cardInfo = {
+  'magnetic-value': {
+    title: 'Magnetic Field Value Formula',
+    html: `
+      <p>Formula untuk membaca tegangan sensor magnet:</p>
+      <pre><code>float readVoltage() {
+  float sum = 0;
+  for(int i=0; i<samples; i++) {
+    sum += analogRead(pin);
+    delayMicroseconds(100); // Respons 3μs
+  }
+  return (sum / samples) * (5.0 / 1023.0);
+}</code></pre>
+      <p>Kalibrasi nol medan magnet:</p>
+      <pre><code>void calibrateZeroField() {
+  vQuiescent = readVoltage();
+}</code></pre>
+      <p>Dapatkan medan dalam Gauss:</p>
+      <pre><code>float getFieldGauss() {
+  float vOut = readVoltage();
+  return (vOut - vQuiescent) / sensitivity;
+}</code></pre>
+      <p>Dapatkan medan dalam Tesla:</p>
+      <pre><code>float getFieldTesla() {
+  return getFieldGauss() / 10000.0;
+}</code></pre>
+    `
+  },
+  'sensor-config': {
+    title: 'Sensor Configuration',
+    html: `<img src="assets/sensor-circuit.png" alt="Sensor circuit diagram" class="img-fluid" />`
+  },
+  'history-chart': {
+    title: 'Magnetic Field History',
+    html: `<p>Grafik menampilkan perubahan medan magnet dari waktu ke waktu. Baca sumbu X untuk waktu dan sumbu Y untuk nilai medan (Tesla).</p>`
+  },
+  'field-viz': {
+    title: 'Magnetic Field Visualization',
+    html: `<p>Gunakan kontrol meter untuk mengukur kekuatan medan di posisi manapun. Seret untuk memindahkan meter, dan baca nilai B, Bx, By, dan θ pada bagian meter.</p>`
+  },
+  'raw-data': {
+    title: 'Raw Data Table',
+    html: `<p>Kolom <strong>Timestamp</strong> menunjukkan waktu pengukuran. Kolom <strong>Magnetic Field (T)</strong> adalah nilai medan magnet pada saat tersebut.</p>`
+  }
+};
+
+// Utility to initialize modal triggers
+function initModals() {
+  const cards = document.querySelectorAll('.card[role="region"]');
+  cards.forEach(card => {
+    const header = card.querySelector('.card-header');
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-link text-secondary float-end';
+    btn.innerHTML = '<i class="bi bi-three-dots-vertical"></i>';
+    btn.setAttribute('aria-label', 'More info');
+    btn.addEventListener('click', () => openModal(card));
+    header.appendChild(btn);
+  });
+}
+
+function openModal(card) {
+  const key = card.getAttribute('data-information');
+  if (!cardInfo[key]) return;
+  const modalTitle = document.getElementById('dynamicModalTitle');
+  const modalBody = document.getElementById('dynamicModalBody');
+  modalTitle.innerText = cardInfo[key].title;
+  modalBody.innerHTML = cardInfo[key].html;
+
+  const modalEl = document.getElementById('dynamicModal');
+  const bsModal = new bootstrap.Modal(modalEl);
+  bsModal.show();
+}
+
+// Swipe-to-close modal logic
+function enableSwipeToDismiss() {
+  const modalContent = document.getElementById('swipeableModalContent');
+  let startY = null;
+
+  modalContent.addEventListener('touchstart', (e) => {
+    startY = e.touches[0].clientY;
+  });
+
+  modalContent.addEventListener('touchmove', (e) => {
+    if (startY === null) return;
+    const deltaY = e.touches[0].clientY - startY;
+    if (deltaY > 50) {
+      const modal = bootstrap.Modal.getInstance(document.getElementById('dynamicModal'));
+      modal.hide();
+      startY = null;
+    }
+  });
+
+  modalContent.addEventListener('touchend', () => {
+    startY = null;
+  });
+}
+
 // === VISUALIZATION UPDATE ===
 function updateMagnetViz(B) {
   const amplitudeScale = Math.min(Math.abs(B)*5, 1);
@@ -333,6 +431,8 @@ function endDrag() { isDragging = false; }
 // === EVENT BINDING ===
 document.addEventListener('DOMContentLoaded', () => {
   initChart();
+  initModals();
+  enableSwipeToDismiss();
   fetchData().then(processData);
   setInterval(()=>fetchData().then(processData), 5000);
 
