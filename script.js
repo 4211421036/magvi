@@ -49,6 +49,36 @@ const langBtn      = document.getElementById('langBtn');
 const languageModal= document.getElementById('languageModal');
 const langOptions  = languageModal.querySelectorAll('.lang-option');
 
+const infoIcon = document.getElementById('infoIcon');
+const mdl = document.getElementById('infoModal');
+
+// Check if device is touch-capable (mobile/tablet)
+const isTouchDevice = () => {
+  return window.matchMedia("(pointer: coarse)").matches;
+};
+
+if (isTouchDevice()) {
+  // Remove title if on mobile
+  infoIcon.removeAttribute("title");
+
+  infoIcon.addEventListener("click", () => {
+    mdl.classList.add("active");
+  });
+
+  // Swipe down to close
+  let startY = 0;
+  mdl.addEventListener("touchstart", (e) => {
+    startY = e.touches[0].clientY;
+  });
+
+  mdl.addEventListener("touchmove", (e) => {
+    const deltaY = e.touches[0].clientY - startY;
+    if (deltaY > 50) {
+      mdl.classList.remove("active");
+    }
+  });
+}
+
 langBtn.addEventListener('click', () => {
   languageModal.classList.add('open');
   document.body.classList.add('modal-open');
