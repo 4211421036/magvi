@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xml:lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magnet Visualisasi</title>
+    <title>Magnet Visualisasi - Monitoring Magnetic Field</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Skip link for keyboard users -->
-    <a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
+    <a href="#main-content" class="visually-hidden-focusable" accesskey="s">Skip to main content</a>
 
     <header role="banner" class="container mt-4">
         <h1 class="text-center">MagVi Monitoring</h1>
@@ -28,14 +28,15 @@
                         <p id="magneticValue" class="display-4" role="status" aria-live="polite">0.000000 T</p>
                         <div class="d-inline-flex align-items-center gap-3">
                             <div class="d-flex align-items-center gap-1">
-                                <button id="speakBtn" class="btn btn-success me-2" aria-label="Read magnetic field value aloud">
+                                <button id="speakBtn" class="btn btn-success me-2" aria-label="Read magnetic field value aloud" accesskey="r">
                                     <i class="bi bi-volume-up" aria-hidden="true"></i> Read Value
                                 </button>
-                                <button id="langBtn" class="btn btn-secondary" >
-                                  <i class="bi bi-chevron-down"></i>
+                                <button id="langBtn" class="btn btn-secondary" aria-label="Change language" accesskey="l" aria-haspopup="dialog" aria-expanded="false">
+                                  <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                                  <span class="visually-hidden">Change Language</span>
                                 </button>
                             </div>    
-                            <button id="toggleAutoSpeak" class="btn btn-outline-primary" aria-pressed="false" aria-label="Toggle automatic reading of magnetic field value">
+                            <button id="toggleAutoSpeak" class="btn btn-outline-primary" aria-pressed="false" aria-label="Toggle automatic reading of magnetic field value" accesskey="a">
                                 <i class="bi bi-megaphone" aria-hidden="true"></i> Auto-Read: OFF
                             </button>
                         </div>
@@ -49,7 +50,7 @@
             <!-- Card 2: Configuration Info -->
             <div class="col-md-6 mb-4">
                 <div class="card shadow" role="region" aria-labelledby="config-title">
-                    <div class="card-header bg-info text-white">
+                    <div class="card-header bg-info text-dark">
                         <h3 id="config-title" class="card-title">Sensor Configuration</h3>
                     </div>
                     <div class="card-body">
@@ -102,7 +103,7 @@
                             Enable field meter to measure magnetic field strength at any position. Drag to move around.
                         </small>
                     </div>
-                    <div id="magnetViz" class="magnet-viz mt-4" role="application" aria-label="Interactive magnetic field visualization"></div>
+                    <div id="magnetViz" class="magnet-viz mt-4" role="application" aria-label="Interactive magnetic field visualization" tabindex="0"></div>
                     <div id="fieldMeter" class="field-meter" style="display: none;" role="region" aria-labelledby="meter-title">
                         <div id="meter-title" class="field-meter-header">Field Meter</div>
                         <div class="field-meter-row">
@@ -152,12 +153,12 @@
             </div>
         </section>
     </main>
-    <div id="languageModal" class="language-modal" role="dialog" aria-modal="true">
-      <div class="modal-handle"></div>
-      <h5 class="modal-title">Pilih Bahasa</h5>
+    <div id="languageModal" class="language-modal" role="dialog" aria-modal="true" aria-labelledby="languageModalTitle" aria-hidden="true">
+      <div class="modal-handle" tabindex="0" aria-label="Modal handle"></div>
+      <h4 id="languageModalTitle" class="modal-title">Select Language</h4>
       <div class="modal-options">
-        <button class="lang-option" data-lang="id">Bahasa Indonesia</button>
-        <button class="lang-option" data-lang="en">English</button>
+        <button class="lang-option" data-lang="id" aria-label="Change to Bahasa Indonesia">Bahasa Indonesia</button>
+        <button class="lang-option" data-lang="en" aria-label="Change to English">English</button>
       </div>
     </div>
 
