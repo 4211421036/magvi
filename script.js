@@ -440,7 +440,7 @@ function enableSwipeToDismiss() {
   let isSwipeActive = false;
   
   // Tambahkan visual indicator untuk swipe
-  addSwipeIndicator(header);
+  addSwipeIndicator(content);
   
   // Event listener hanya pada header
   header.addEventListener('touchstart', e => { 
@@ -500,10 +500,9 @@ function addSwipeIndicator(header) {
   indicator.style.cssText = `
     width: 40px;
     height: 4px;
-    background-color: #ccc;
+    background: #ccc;
     border-radius: 2px;
-    margin: 0 auto 10px auto;
-    opacity: 0.6;
+    margin: 0 auto 0.5rem;
   `;
   
   // Insert di awal header
