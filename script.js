@@ -432,16 +432,26 @@ function setupModalEvents() {
 }
 
 // Custom swipe to dismiss for modal
+// Custom swipe to dismiss for modal - ONLY on header
 function enableSwipeToDismiss() {
+  const header = document.querySelector('#dynamicModal .modal-header'); // Target header saja
   const content = document.getElementById('swipeableModalContent');
   let yStart = null;
+  let isSwipeActive = false;
   
-  content.addEventListener('touchstart', e => { 
-    yStart = e.touches[0].clientY; 
+  // Tambahkan visual indicator untuk swipe
+  addSwipeIndicator(header);
+  
+  // Event listener hanya pada header
+  header.addEventListener('touchstart', e => { 
+    yStart = e.touches[0].clientY;
+    isSwipeActive = true;
+    // Reset transform jika ada
+    content.style.transform = 'translateY(0)';
   });
   
-  content.addEventListener('touchmove', e => {
-    if (yStart === null) return;
+  header.addEventListener('touchmove', e => {
+    if (yStart === null || !isSwipeActive) return;
     
     const y = e.touches[0].clientY;
     const deltaY = y - yStart;
@@ -450,11 +460,14 @@ function enableSwipeToDismiss() {
       // Only allow downward swipe
       content.style.transform = `translateY(${deltaY}px)`;
       content.style.transition = 'none';
+      
+      // Prevent default untuk mencegah scroll pada header
+      e.preventDefault();
     }
   });
   
-  content.addEventListener('touchend', e => {
-    if (yStart === null) return;
+  header.addEventListener('touchend', e => {
+    if (yStart === null || !isSwipeActive) return;
     
     const y = e.changedTouches[0].clientY;
     const deltaY = y - yStart;
@@ -476,7 +489,25 @@ function enableSwipeToDismiss() {
     }, 300);
     
     yStart = null;
+    isSwipeActive = false;
   });
+}
+
+// Tambahkan visual indicator untuk swipe
+function addSwipeIndicator(header) {
+  // Tambahkan garis kecil di tengah header sebagai indicator
+  const indicator = document.createElement('div');
+  indicator.style.cssText = `
+    width: 40px;
+    height: 4px;
+    background-color: #ccc;
+    border-radius: 2px;
+    margin: 0 auto 10px auto;
+    opacity: 0.6;
+  `;
+  
+  // Insert di awal header
+  header.insertBefore(indicator, header.firstChild);
 }
 
 // === VISUALIZATION UPDATE ===
