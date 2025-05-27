@@ -411,8 +411,8 @@ sub, sup {
     top: 0;
     right: 0;
     margin: 0;
-    width: 30%;       /* sesuaikan lebar sidebar */
-    max-width: 400px;  /* batas maksimum */
+    width: 100%;
+    max-width: 30%;
     height: 100vh;     /* full height */
   }
   /* 2. Agar konten modal juga full height */
@@ -424,4 +424,9 @@ sub, sup {
   .modal-backdrop.show {
     opacity: 0;        /* atau display: none; jika mau */
   }
+}
+
+.mcd {
+    right: 280px;
+    position: relative;
 }
