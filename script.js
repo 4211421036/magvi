@@ -52,29 +52,51 @@ const langOptions  = languageModal.querySelectorAll('.lang-option');
 const infoIcon = document.getElementById('infoIcon');
 const mdl = document.getElementById('infoModal');
 
-// Check if device is touch-capable (mobile/tablet)
-const isTouchDevice = () => {
-  return window.matchMedia("(pointer: coarse)").matches;
-};
+const isTouchDevice = () => window.matchMedia("(pointer: coarse)").matches;
 
 if (isTouchDevice()) {
-  // Remove title if on mobile
   infoIcon.removeAttribute("title");
+
+  let startY = 0;
+  let currentY = 0;
+  let isDragging = false;
 
   infoIcon.addEventListener("click", () => {
     mdl.classList.add("active");
+    mdl.style.transition = 'transform 0.3s ease';
+    mdl.style.transform = 'translateY(0%)';
   });
 
-  // Swipe down to close
-  let startY = 0;
   mdl.addEventListener("touchstart", (e) => {
     startY = e.touches[0].clientY;
+    isDragging = true;
+    mdl.style.transition = 'none';
   });
 
   mdl.addEventListener("touchmove", (e) => {
-    const deltaY = e.touches[0].clientY - startY;
-    if (deltaY > 50) {
-      mdl.classList.remove("active");
+    if (!isDragging) return;
+    currentY = e.touches[0].clientY;
+    let delta = currentY - startY;
+    if (delta > 0) {
+      mdl.style.transform = `translateY(${delta}px)`;
+    }
+  });
+
+  mdl.addEventListener("touchend", () => {
+    if (!isDragging) return;
+    isDragging = false;
+    const delta = currentY - startY;
+
+    mdl.style.transition = 'transform 0.2s ease';
+    if (delta > 100) {
+      // close
+      mdl.style.transform = 'translateY(100%)';
+      setTimeout(() => {
+        mdl.classList.remove("active");
+      }, 200);
+    } else {
+      // revert back
+      mdl.style.transform = 'translateY(0%)';
     }
   });
 }
