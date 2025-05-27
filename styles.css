@@ -270,3 +270,69 @@ body {
     z-index: 999;
     touch-action: none;
 }
+
+.formulation-container {
+  font-family: 'Times New Roman', serif;
+  line-height: 1.6;
+  max-width: 800px;
+}
+.formula-block {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-left: 4px solid #007bff;
+  padding: 15px 20px;
+  margin: 15px 0;
+  border-radius: 8px;
+  font-size: 1.1em;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.fraction {
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
+  position: relative;
+}
+.fraction .divisor {
+  display: block;
+  border-top: 1px solid #333;
+  padding-top: 2px;
+  margin-top: 2px;
+}
+.code-implementation {
+  background: #2d3748;
+  color: #e2e8f0;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+}
+.code-implementation pre {
+  margin: 0;
+  color: #e2e8f0;
+}
+.code-implementation h5 {
+  color: #63b3ed;
+  margin-bottom: 15px;
+}
+.technical-notes {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 20px;
+}
+.technical-notes h5 {
+  color: #856404;
+  margin-bottom: 10px;
+}
+.technical-notes ul {
+  margin-bottom: 0;
+}
+h4 {
+  color: #2c5aa0;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 8px;
+  margin-top: 25px;
+}
+sub, sup {
+  font-size: 0.8em;
+}
