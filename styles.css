@@ -374,7 +374,7 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0;
   color: #e2e8f0;
 }
-.code-implementation h5 {
+.code-implementation h4 {
   color: #63b3ed;
   margin-bottom: 15px;
 }
@@ -385,14 +385,14 @@ h1, h2, h3, h4, h5, h6 {
   padding: 15px;
   margin-top: 20px;
 }
-.technical-notes h5 {
+.technical-notes h4 {
   color: #856404;
   margin-bottom: 10px;
 }
 .technical-notes ul {
   margin-bottom: 0;
 }
-h4 {
+h3 {
   color: #2c5aa0;
   border-bottom: 2px solid #e9ecef;
   padding-bottom: 8px;
