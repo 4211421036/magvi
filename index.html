@@ -33,7 +33,7 @@
                                 </button>
                                 <button id="langBtn" class="btn btn-secondary" aria-label="Change language" accesskey="l" aria-haspopup="dialog" aria-expanded="false" role="button">
                                   <i class="bi bi-chevron-down" aria-hidden="true"></i>
-                                  <span class="visually-hidden">Change Language</span>
+                                  <span class="visually-hidden" role="text">Change Language</span>
                                 </button>
                             </div>    
                             <button
@@ -63,13 +63,13 @@
                     <div class="card-body" role="contentinfo">
                         <ul class="list-group list-group-flush" role="list">
                             <li class="list-group-item" role="listitem">
-                                <strong>Sensor Type:</strong> <span id="sensorType">-</span>
+                                <strong>Sensor Type:</strong> <span role="text" id="sensorType">-</span>
                             </li>
                             <li class="list-group-item" role="listitem">
-                                <strong>Analog Pin:</strong> <span id="analogPin">-</span>
+                                <strong>Analog Pin:</strong> <span role="text" id="analogPin">-</span>
                             </li>
                             <li class="list-group-item" role="listitem">
-                                <strong>Uptime:</strong> <span id="uptime">-</span> minutes
+                                <strong>Uptime:</strong> <span role="text" id="uptime">-</span> minutes
                             </li>
                         </ul>
                     </div>
@@ -114,20 +114,20 @@
                     <div id="fieldMeter" class="field-meter" style="display: none;" role="region" aria-labelledby="meter-title">
                         <div id="meter-title" class="field-meter-header" role="heading" aria-level="4">Field Meter</div>
                         <div class="field-meter-row" role="meter" aria-valuenow="1.44" aria-valuemin="0" aria-valuemax="10" aria-label="Magnetic field strength">
-                            <span class="field-meter-label">B</span>
-                            <span id="fieldMeterB" class="field-meter-value">1.44 G</span>
+                            <span role="text" class="field-meter-label">B</span>
+                            <span role="text" id="fieldMeterB" class="field-meter-value">1.44 G</span>
                         </div>
                         <div class="field-meter-row" role="meter" aria-valuenow="1.44" aria-valuemin="0" aria-valuemax="10" aria-label="X-axis magnetic field">
-                            <span class="field-meter-label">Bx</span>
-                            <span id="fieldMeterBx" class="field-meter-value">1.44 G</span>
+                            <span role="text" class="field-meter-label">Bx</span>
+                            <span role="text" id="fieldMeterBx" class="field-meter-value">1.44 G</span>
                         </div>
                         <div class="field-meter-row" role="meter" aria-valuenow="0" aria-valuemin="0" aria-valuemax="10" aria-label="Y-axis magnetic field">
-                            <span class="field-meter-label">By</span>
-                            <span id="fieldMeterBy" class="field-meter-value">0 G</span>
+                            <span role="text" class="field-meter-label">By</span>
+                            <span role="text" id="fieldMeterBy" class="field-meter-value">0 G</span>
                         </div>
                         <div class="field-meter-row" role="meter" aria-valuenow="0" aria-valuemin="0" aria-valuemax="360" aria-label="Magnetic field angle">
-                            <span class="field-meter-label">θ</span>
-                            <span id="fieldMeterTheta" class="field-meter-value">0°</span>
+                            <span role="text" class="field-meter-label">θ</span>
+                            <span role="text" id="fieldMeterTheta" class="field-meter-value">0°</span>
                         </div>
                     </div>
                 </div>
@@ -174,7 +174,7 @@
           <div class="drag-indicator"></div>
           <div class="content">
             <i class="bi bi-info-circle"></i>
-            <span>Enable field meter to measure magnetic field strength at any position. Drag to move around.</span>
+            <span role="text">Enable field meter to measure magnetic field strength at any position. Drag to move around.</span>
           </div>
         </div>
     </main>
