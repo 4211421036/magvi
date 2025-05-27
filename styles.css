@@ -404,7 +404,6 @@ sub, sup {
   font-size: 0.8em;
 }
 
-/* MODAL SPOTIFY STYLE - DESKTOP */
 @media (min-width: 768px) {
   .language-modal,
   #dynamicModal .modal-dialog {
@@ -426,7 +425,6 @@ sub, sup {
     transform: translate(-50%, -50%) scale(1);
   }
 
-  /* Header Spotify Style */
   .modal-header {
     border-bottom: 1px solid #282828;
     background: linear-gradient(180deg, #282828 0%, #181818 100%);
@@ -440,7 +438,6 @@ sub, sup {
     color: white;
   }
 
-  /* Close button Spotify Style */
   .btn-close {
     filter: invert(1);
     opacity: 0.7;
@@ -452,13 +449,11 @@ sub, sup {
     transform: rotate(90deg);
   }
 
-  /* Body styling */
   .modal-body {
     padding: 20px 24px;
     background: #121212;
   }
 
-  /* Options Spotify Style */
   .lang-option {
     background: #282828 !important;
     border: none !important;
@@ -472,7 +467,6 @@ sub, sup {
     box-shadow: 0 8px 16px rgba(29, 185, 84, 0.2);
   }
 
-  /* Scrollbar Spotify Style */
   .modal-body::-webkit-scrollbar {
     width: 6px;
   }
@@ -482,12 +476,9 @@ sub, sup {
     border-radius: 4px;
   }
 
-  /* Handle styling */
   .modal-handle {
     display: none;
   }
-
-  /* Info Modal Spotify Style */
   #infoModal {
     max-width: 320px;
     right: 24px;
