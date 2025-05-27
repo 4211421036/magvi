@@ -93,7 +93,6 @@ languageModal.addEventListener('touchend', e => {
   }, 200);
 });
 
-
 // --- init grid span (9×9) ---
 for (let i = 0; i < COLS * COLS; i++) {
   const span = document.createElement('span');
@@ -264,7 +263,51 @@ const cardInfo = {
   }
 };
 
-// Initialize modal triggers: use Bootstrap data attributes
+// === MODAL FUNCTIONALITY ===
+function showModal(title, content) {
+  const modal = document.getElementById('dynamicModal');
+  const modalTitle = document.getElementById('dynamicModalTitle');
+  const modalBody = document.getElementById('dynamicModalBody');
+  
+  modalTitle.textContent = title;
+  modalBody.innerHTML = content;
+  
+  // Show modal
+  modal.style.display = 'block';
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  
+  // Create backdrop
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop fade show';
+  document.body.appendChild(backdrop);
+  
+  // Add class to body
+  document.body.classList.add('modal-open');
+  
+  // Focus on modal
+  modal.focus();
+}
+
+function hideModal() {
+  const modal = document.getElementById('dynamicModal');
+  
+  // Hide modal
+  modal.style.display = 'none';
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  
+  // Remove backdrop
+  const backdrop = document.querySelector('.modal-backdrop');
+  if (backdrop) {
+    backdrop.remove();
+  }
+  
+  // Remove class from body
+  document.body.classList.remove('modal-open');
+}
+
+// Initialize modal triggers
 function initModals() {
   const cards = document.querySelectorAll('.card[role="region"]');
   cards.forEach(card => {
@@ -275,54 +318,95 @@ function initModals() {
     btn.type = 'button';
     btn.className = 'btn btn-link p-0 ' + (header.classList.contains('text-white') ? 'text-white' : 'text-dark');
     btn.setAttribute('aria-label', 'More info');
-    btn.setAttribute('data-bs-toggle', 'modal');
-    btn.setAttribute('data-bs-target', '#dynamicModal');
-
+    
     // Store key for later
     const key = card.getAttribute('data-information');
     btn.dataset.infoKey = key;
     btn.innerHTML = '<i class="bi bi-three-dots-vertical"></i>';
+    
+    // Add click event listener
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const infoKey = btn.dataset.infoKey;
+      const info = cardInfo[infoKey] || {};
+      showModal(info.title || 'Information', info.html || '<p>No information available.</p>');
+    });
 
     header.appendChild(btn);
   });
 }
 
-// Populate modal content on show
-function setupModalPopulation() {
-  const modalEl = document.getElementById('dynamicModal');
-  modalEl.addEventListener('show.bs.modal', event => {
-    const triggerBtn = event.relatedTarget;
-    const key = triggerBtn.dataset.infoKey;
-    const info = cardInfo[key] || {};
-    document.getElementById('dynamicModalTitle').innerText = info.title || '';
-    document.getElementById('dynamicModalBody').innerHTML = info.html || '';
+// Setup modal close functionality
+function setupModalEvents() {
+  const modal = document.getElementById('dynamicModal');
+  const closeBtn = modal.querySelector('.btn-close');
+  
+  // Close button click
+  if (closeBtn) {
+    closeBtn.addEventListener('click', hideModal);
+  }
+  
+  // Click outside modal to close
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      hideModal();
+    }
+  });
+  
+  // Escape key to close
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('show')) {
+      hideModal();
+    }
   });
 }
 
-// Custom close for swipe without bootstrap globals
+// Custom swipe to dismiss for modal
 function enableSwipeToDismiss() {
   const content = document.getElementById('swipeableModalContent');
   let yStart = null;
-  content.addEventListener('touchstart', e => { yStart = e.touches[0].clientY; });
+  
+  content.addEventListener('touchstart', e => { 
+    yStart = e.touches[0].clientY; 
+  });
+  
   content.addEventListener('touchmove', e => {
+    if (yStart === null) return;
+    
     const y = e.touches[0].clientY;
-    if (yStart !== null && y - yStart > 80) {
-      closeModal();
-      yStart = null;
+    const deltaY = y - yStart;
+    
+    if (deltaY > 0) {
+      // Only allow downward swipe
+      content.style.transform = `translateY(${deltaY}px)`;
+      content.style.transition = 'none';
     }
   });
-  content.addEventListener('touchend', () => { yStart = null; });
-}
-
-function closeModal() {
-  const modalEl = document.getElementById('dynamicModal');
-  // hide
-  modalEl.classList.remove('show');
-  modalEl.setAttribute('aria-hidden', 'true');
-  modalEl.style.display = 'none';
-  // remove backdrop
-  const backdrop = document.querySelector('.modal-backdrop');
-  if (backdrop) backdrop.remove();
+  
+  content.addEventListener('touchend', e => {
+    if (yStart === null) return;
+    
+    const y = e.changedTouches[0].clientY;
+    const deltaY = y - yStart;
+    
+    content.style.transition = 'transform 0.3s ease';
+    
+    if (deltaY > 100) {
+      // Swipe down threshold reached - close modal
+      hideModal();
+    } else {
+      // Snap back
+      content.style.transform = 'translateY(0)';
+    }
+    
+    // Reset
+    setTimeout(() => {
+      content.style.transition = '';
+      content.style.transform = '';
+    }, 300);
+    
+    yStart = null;
+  });
 }
 
 // === VISUALIZATION UPDATE ===
@@ -442,7 +526,7 @@ function endDrag() { isDragging = false; }
 document.addEventListener('DOMContentLoaded', () => {
   initChart();
   initModals();
-  setupModalPopulation();
+  setupModalEvents();
   enableSwipeToDismiss();
   fetchData().then(processData);
   setInterval(()=>fetchData().then(processData), 5000);
