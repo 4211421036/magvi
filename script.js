@@ -442,6 +442,7 @@ function endDrag() { isDragging = false; }
 document.addEventListener('DOMContentLoaded', () => {
   initChart();
   initModals();
+  setupModalPopulation();
   enableSwipeToDismiss();
   fetchData().then(processData);
   setInterval(()=>fetchData().then(processData), 5000);
