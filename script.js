@@ -264,15 +264,24 @@ const cardInfo = {
   }
 };
 
-// Utility to initialize modal triggers
 function initModals() {
   const cards = document.querySelectorAll('.card[role="region"]');
   cards.forEach(card => {
     const header = card.querySelector('.card-header');
+    header.classList.add('d-flex', 'justify-content-between', 'align-items-center');
+
     const btn = document.createElement('button');
-    btn.className = 'btn btn-link text-secondary float-end';
-    btn.innerHTML = '<i class="bi bi-three-dots-vertical"></i>';
+    btn.classList.add('btn', 'btn-link', 'p-0');
     btn.setAttribute('aria-label', 'More info');
+    btn.innerHTML = '<i class="bi bi-three-dots-vertical"></i>';
+
+    // adapt icon color to header text color
+    if (header.classList.contains('text-white')) {
+      btn.classList.add('text-white');
+    } else {
+      btn.classList.add('text-dark');
+    }
+
     btn.addEventListener('click', () => openModal(card));
     header.appendChild(btn);
   });
@@ -291,28 +300,20 @@ function openModal(card) {
   bsModal.show();
 }
 
-// Swipe-to-close modal logic
 function enableSwipeToDismiss() {
   const modalContent = document.getElementById('swipeableModalContent');
   let startY = null;
 
-  modalContent.addEventListener('touchstart', (e) => {
-    startY = e.touches[0].clientY;
-  });
-
-  modalContent.addEventListener('touchmove', (e) => {
+  modalContent.addEventListener('touchstart', e => startY = e.touches[0].clientY);
+  modalContent.addEventListener('touchmove', e => {
     if (startY === null) return;
     const deltaY = e.touches[0].clientY - startY;
     if (deltaY > 50) {
-      const modal = bootstrap.Modal.getInstance(document.getElementById('dynamicModal'));
-      modal.hide();
+      bootstrap.Modal.getInstance(document.getElementById('dynamicModal')).hide();
       startY = null;
     }
   });
-
-  modalContent.addEventListener('touchend', () => {
-    startY = null;
-  });
+  modalContent.addEventListener('touchend', () => startY = null);
 }
 
 // === VISUALIZATION UPDATE ===
