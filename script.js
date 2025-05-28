@@ -180,47 +180,16 @@ function initChart() {
   });
 }
 
-// 1) Siapkan fallback Base64 (encode sekali saja, misal di-batch build)
-const FALLBACK_BASE64 = 
-  'eyJrZXkiOiAidmFsdWUifQ=='; // <-- hasil `btoa(JSON.stringify(obj))`
-
-/**
- * Decode Base64 JSON
- */
-function decodeBase64Json(b64) {
-  const jsonString = decodeURIComponent(
-    Array.prototype.map
-      .call(atob(b64), c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-      .join('')
-  );
-  return JSON.parse(jsonString);
-}
-
-/**
- * Fetch JSON from GitHub, with fallback ke embedded Base64
- */
 async function fetchData() {
-  // Untuk mencegah caching GitHub Pages, bisa tambahkan param unik:
-  const url = 
-    'https://raw.githubusercontent.com/4211421036/magvi/main/magnet_data.json'
-    + '?t=' + Date.now();
-
   try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    // jika sukses, parse dan return
-    const data = await res.json();
-    console.log('🚀 Fetched live data:', data);
-    return data;
-  } catch (err) {
-    console.warn('⚠️ Fetch failed, fallback ke Base64. Error:', err);
-    // decode fallback dan return
-    const fallbackData = decodeBase64Json(FALLBACK_BASE64);
-    console.log('🔄 Using fallback JSON:', fallbackData);
-    return fallbackData;
+    const res = await fetch('https://raw.githubusercontent.com/4211421036/magvi/main/magnet_data.json');
+    if (!res.ok) throw new Error('Fetch failed');
+    return await res.json();
+  } catch (e) {
+    console.error('Error fetching data:', e);
+    return null;
   }
 }
-
 
 function processData(data) {
   if (!data) return;
