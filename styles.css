@@ -408,7 +408,7 @@ sub, sup {
     position: absolute;
     width: 100px;
     left: 35%;
-    top: 65px;
+    top: 50px;
 }
 
 @media (min-width: 1024px) {
