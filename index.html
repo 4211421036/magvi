@@ -3,9 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magnet Visualisasi - Monitoring Magnetic Field</title>
+    <title>Magnet Visualisasi</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="/flowsense/manifest.webmanifest">
+    <link rel="canonical" href="https://4211421036.github.io/flowsense/">
+    <meta name="description" content="Magnet Visualisasi Based ESP32 and SS49E Sensor">
+    <meta name="keywords" content="magvi, magnet, field, visual">
+    <meta name="author" content="GALIH RIDHO UTOMO">
+    <meta name="google-site-verification" content="OYdjPwgIjGMAbQd3CGwM_l20jLNRRp84mEl3kw06DMg" />
+    <meta name="robots" content="index, follow">
+    
+    <meta name="theme-color" content="#1E274E">
+    <link rel="icon" href="https://4211421036.github.io/flowsense/ven.png" type="image/x-icon">
+    <link rel="shortcut icon" href="https://4211421036.github.io/flowsense/ven.png" type="image/x-icon">
+    
+    <meta property="og:title" content="Magnet Visualisasi">
+    <meta property="og:description" content="Magnet Visualisasi Based ESP32 and SS49E Sensor">
+    <meta property="og:image" content="https://4211421036.github.io/flowsense/GraphVen.png">
+    <meta property="og:url" content="https://4211421036.github.io/flowsense/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Magnet Visualisasi">
+    <meta property="article:author" content="GALIH RIDHO UTOMO">
+    <meta property="article:published_time" content="2025-04-16T10:00:00+00:00">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@magvi">
+    <meta name="twitter:title" content="Magnet Visualisasi">
+    <meta name="twitter:description" content="Magnet Visualisasi Based ESP32 and SS49E Sensor">
+    <meta name="twitter:image" content="https://4211421036.github.io/flowsense/GraphVen.png">
 </head>
 <body role="document">
     <!-- Skip link for keyboard users -->
@@ -197,6 +225,20 @@
     
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/flowsense/sw.js')
+                .then(registration => {
+                    console.log('ServiceWorker registration successful');
+                })
+                .catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+        });
+    }
+    </script>
     
     <!-- Main Script -->
     <script src="script.js"></script>
