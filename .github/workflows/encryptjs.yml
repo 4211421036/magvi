@@ -33,7 +33,7 @@ jobs:
           pip install laicrypto
 
       # 4) Jalankan skrip Python untuk enkripsi
-      - name: Encrypt hello.js → hello_ciphertext.json
+      - name: Encrypt script.js → ciphertext.json
         run: |
           python Crypto/LAI.py
 
