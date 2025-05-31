@@ -1,21 +1,17 @@
-// Global variables
 let magneticChart;
 let autoSpeakEnabled = false;
 let lastValue = 0;
 let currentMagneticField = 0;
 const speechSynthesis = window.speechSynthesis;
 
-// Visualization constants
 const COLS      = 9;
 const maxAngle  = 90;
 const maxShift  = 8;
 
-// Field meter state
 let fieldMeterEnabled = false;
 let isDragging       = false;
 let dragOffset       = { x: 0, y: 0 };
 
-// DOM Elements
 const magneticValueEl    = document.getElementById('magneticValue');
 const lastUpdateEl       = document.getElementById('lastUpdate');
 const speakBtn           = document.getElementById('speakBtn');
@@ -33,17 +29,14 @@ const fieldMeterBx       = document.getElementById('fieldMeterBx');
 const fieldMeterBy       = document.getElementById('fieldMeterBy');
 const fieldMeterTheta    = document.getElementById('fieldMeterTheta');
 
-// setelah const vizItems = …
 const wrapperRect = () => vizWrapper.getBoundingClientRect(); 
 const cellW = () => wrapperRect().width  / COLS;
 const cellH = () => wrapperRect().height / COLS;
 
-// container for drag bounds
 const container = vizWrapper.parentElement;
 const containerRect = () => container.getBoundingClientRect();
 
-// --- LANGUAGE MODAL SETUP ---
-let selectedLang = 'id';  // default Bahasa Indonesia
+let selectedLang = 'id';
 
 const langBtn      = document.getElementById('langBtn');
 const languageModal= document.getElementById('languageModal');
@@ -120,7 +113,6 @@ langOptions.forEach(btn => {
   });
 });
 
-// swipe-to-dismiss
 let startY = 0, currentY = 0, dragging = false;
 languageModal.addEventListener('touchstart', e => {
   startY = e.touches[0].clientY;
@@ -143,14 +135,12 @@ languageModal.addEventListener('touchend', e => {
     languageModal.classList.remove('open');
     document.body.classList.remove('modal-open');
   }
-  // reset
   languageModal.style.transform = '';
   setTimeout(() => {
     languageModal.style.transition = '';
   }, 200);
 });
 
-// --- init grid span (9×9) ---
 for (let i = 0; i < COLS * COLS; i++) {
   const span = document.createElement('span');
   span.style.setProperty('--dx',       '0px');
@@ -161,7 +151,6 @@ for (let i = 0; i < COLS * COLS; i++) {
 }
 const vizItems = Array.from(vizWrapper.querySelectorAll('span'));
 
-// === CHART & FETCH ===
 function initChart() {
   const ctx = document.getElementById('magneticChart').getContext('2d');
   magneticChart = new Chart(ctx, {
