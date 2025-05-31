@@ -35,7 +35,7 @@ jobs:
       # 4) Jalankan skrip Python untuk enkripsi
       - name: Encrypt hello.js → hello_ciphertext.json
         run: |
-          python LAI Crypto/LAI.py
+          python Crypto/LAI.py
 
       # 5) Commit & Push file JSON hasil enkripsi kembali ke repo
       - name: Commit and push script.json
