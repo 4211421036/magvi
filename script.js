@@ -179,6 +179,144 @@ async function fetchData() {
   }
 }
 
+// —————— MULAI: Definisi fungsi modal ——————
+
+function initModals() {
+  const cards = document.querySelectorAll('.card[role="region"]');
+  cards.forEach(card => {
+    const header = card.querySelector('.card-header');
+    header.classList.add('d-flex', 'justify-content-between', 'align-items-center');
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-link p-0 ' + (header.classList.contains('text-white') ? 'text-white' : 'text-dark');
+    btn.setAttribute('aria-label', 'More info');
+
+    // Simpan key untuk nanti menampilkan konten modal
+    const key = card.getAttribute('data-information');
+    btn.dataset.infoKey = key;
+    btn.innerHTML = '<i class="bi bi-three-dots-vertical"></i>';
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const infoKey = btn.dataset.infoKey;
+      const info = cardInfo[infoKey] || {};
+      showModal(info.title || 'Information', info.html || '<p>No information available.</p>');
+    });
+
+    header.appendChild(btn);
+  });
+}
+
+function setupModalEvents() {
+  const modal = document.getElementById('dynamicModal');
+  const closeBtn = modal.querySelector('.btn-close');
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', hideModal);
+  }
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      hideModal();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('show')) {
+      hideModal();
+    }
+  });
+}
+
+function enableSwipeToDismiss() {
+  const header = document.querySelector('#dynamicModal .modal-header');
+  const content = document.getElementById('swipeableModalContent');
+  let yStart = null, isSwipeActive = false;
+
+  addSwipeIndicator(content);
+
+  header.addEventListener('touchstart', e => {
+    yStart = e.touches[0].clientY;
+    isSwipeActive = true;
+    content.style.transform = 'translateY(0)';
+  });
+
+  header.addEventListener('touchmove', e => {
+    if (!isSwipeActive) return;
+    const y = e.touches[0].clientY;
+    const deltaY = y - yStart;
+    if (deltaY > 0) {
+      content.style.transform = `translateY(${deltaY}px)`;
+      content.style.transition = 'none';
+      e.preventDefault();
+    }
+  });
+
+  header.addEventListener('touchend', e => {
+    if (!isSwipeActive) return;
+    const y = e.changedTouches[0].clientY;
+    const deltaY = y - yStart;
+    content.style.transition = 'transform 0.3s ease';
+    if (deltaY > 100) {
+      hideModal();
+    } else {
+      content.style.transform = 'translateY(0)';
+    }
+    setTimeout(() => {
+      content.style.transition = '';
+      content.style.transform = '';
+    }, 300);
+    yStart = null;
+    isSwipeActive = false;
+  });
+}
+
+function addSwipeIndicator(header) {
+  const indicator = document.createElement('div');
+  indicator.style.cssText = `
+    width: 40px;
+    height: 7px;
+    background: #ccc;
+    border-radius: 12px;
+    margin: 0 auto 4px;
+  `;
+  header.insertBefore(indicator, header.firstChild);
+}
+
+function showModal(title, content) {
+  const modal = document.getElementById('dynamicModal');
+  const modalTitle = document.getElementById('dynamicModalTitle');
+  const modalBody = document.getElementById('dynamicModalBody');
+
+  modalTitle.textContent = title;
+  modalBody.innerHTML = content;
+
+  modal.style.display = 'block';
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop fade show';
+  document.body.appendChild(backdrop);
+
+  document.body.classList.add('modal-open');
+  modal.focus();
+}
+
+function hideModal() {
+  const modal = document.getElementById('dynamicModal');
+  modal.style.display = 'none';
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+
+  const backdrop = document.querySelector('.modal-backdrop');
+  if (backdrop) backdrop.remove();
+
+  document.body.classList.remove('modal-open');
+}
+
+
 function processData(data) {
   if (!data) return;
 
