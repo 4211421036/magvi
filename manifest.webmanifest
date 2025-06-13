@@ -1,0 +1,49 @@
+{
+  "name": "Magnet Visualisasi",
+  "short_name": "MagVi",
+  "start_url": "/magvi?pwa",
+  "display": "standalone",
+  "categories": ["IoT", "Embedded Systems"],
+  "background_color": "#151C35",
+  "theme_color": "#1E274E",
+  "description": "Magnet Visualisasi",
+  "icons": [
+    {
+      "src": "logomag48x48.jpeg",
+      "sizes": "48x48",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "logomag192x192.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "logomag512x512.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "web",
+      "url": "https://4211421036.github.io/MentalHealth/",
+      "id": "MentalHealth"
+    },
+    {
+      "platform": "web",
+      "url": "https://4211421036.github.io/pulsemind/",
+      "id": "PulseMind"
+    },
+    {
+      "platform": "web",
+      "url": "https://4211421036.github.io/facemind",
+      "id": "FaceMind"
+    },
+    {
+      "platform": "web",
+      "url": "https://4211421036.github.io/flowsense",
+      "id": "FlowSense"
+    }
+  ]
+}
