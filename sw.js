@@ -93,7 +93,7 @@ self.addEventListener("sync", event => {
 });
 
 function fetchLatestData() {
-  return fetch("/magnet_data.json")
+  return fetch("https://4211421036.github.io/magvi/magnet_data.json")
     .then(res => {
       if (!res.ok) throw new Error("Fetch data failed");
       return res.json();
