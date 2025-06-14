@@ -1,4 +1,3 @@
-// Global variables
 let magneticChart;
 let autoSpeakEnabled = false;
 let lastValue = 0;
@@ -79,7 +78,7 @@ if (isTouchDevice()) {
     currentY = e.touches[0].clientY;
     let delta = currentY - startY;
     if (delta > 0) {
-      mdl.style.transform = translateY(${delta}px);
+      mdl.style.transform = `translateY(${delta}px)`;
     }
   });
 
@@ -131,7 +130,7 @@ languageModal.addEventListener('touchmove', e => {
   currentY = e.touches[0].clientY;
   const delta = currentY - startY;
   if (delta > 0) {
-    languageModal.style.transform = translateY(${delta}px);
+    languageModal.style.transform = `translateY(${delta}px)`;
   }
 });
 languageModal.addEventListener('touchend', e => {
@@ -230,7 +229,7 @@ function updateTable(readings) {
   readings.slice(-10).reverse().forEach(r=>{
     const t = new Date(r.timestamp*1000).toLocaleTimeString();
     const v = (parseFloat(r.magneticField)||0).toFixed(6);
-    dataTableEl.innerHTML += <tr><td>${t}</td><td>${v}</td></tr>;
+    dataTableEl.innerHTML += `<tr><td>${t}</td><td>${v}</td></tr>`;
   });
 }
 
@@ -243,10 +242,10 @@ function speakValue(v) {
   // atur bahasa dan teks
   if (selectedLang === 'en') {
     utter.lang = 'en-US';
-    utter.text = Magnetic field is ${v.toFixed(6)} Tesla.;
+    utter.text = `Magnetic field is ${v.toFixed(6)} Tesla.`;
   } else {
     utter.lang = 'id-ID';
-    utter.text = Medan magnet adalah ${v.toFixed(6)} Tesla.;
+    utter.text = `Medan magnet adalah ${v.toFixed(6)} Tesla.`;
   }
   utter.rate = 0.9;
   speechSynthesis.speak(utter);
@@ -277,7 +276,7 @@ function handleAutoSpeakToggle() {
 const cardInfo = {
   'magnetic-value': {
     title: 'Magnetic Field Value Formula',
-    html: 
+    html: `
       <div class="formulation-container">
         <h3>1. Voltage Reading and Signal Processing</h3>
         <p>The voltage measurement employs digital signal averaging to minimize noise interference:</p>
@@ -370,23 +369,23 @@ float MagnetSensor::getFieldTesla() {
           </ul>
         </div>
       </div>
-    
+    `
   },
   'sensor-config': {
     title: 'Sensor Configuration',
-    html: <img src="assets/sensor-circuit.png" alt="Sensor circuit diagram" class="img-fluid" />
+    html: `<img src="assets/sensor-circuit.png" alt="Sensor circuit diagram" class="img-fluid" />`
   },
   'history-chart': {
     title: 'Magnetic Field History',
-    html: <p>Grafik menampilkan perubahan medan magnet dari waktu ke waktu. Baca sumbu X untuk waktu dan sumbu Y untuk nilai medan (Tesla).</p>
+    html: `<p>Grafik menampilkan perubahan medan magnet dari waktu ke waktu. Baca sumbu X untuk waktu dan sumbu Y untuk nilai medan (Tesla).</p>`
   },
   'field-viz': {
     title: 'Magnetic Field Visualization',
-    html: <p>Gunakan kontrol meter untuk mengukur kekuatan medan di posisi manapun. Seret untuk memindahkan meter, dan baca nilai B, Bx, By, dan θ pada bagian meter.</p>
+    html: `<p>Gunakan kontrol meter untuk mengukur kekuatan medan di posisi manapun. Seret untuk memindahkan meter, dan baca nilai B, Bx, By, dan θ pada bagian meter.</p>`
   },
   'raw-data': {
     title: 'Raw Data Table',
-    html: <p>Kolom <strong>Timestamp</strong> menunjukkan waktu pengukuran. Kolom <strong>Magnetic Field (T)</strong> adalah nilai medan magnet pada saat tersebut.</p>
+    html: `<p>Kolom <strong>Timestamp</strong> menunjukkan waktu pengukuran. Kolom <strong>Magnetic Field (T)</strong> adalah nilai medan magnet pada saat tersebut.</p>`
   }
 };
 
@@ -515,7 +514,7 @@ function enableSwipeToDismiss() {
     
     if (deltaY > 0) {
       // Only allow downward swipe
-      content.style.transform = translateY(${deltaY}px);
+      content.style.transform = `translateY(${deltaY}px)`;
       content.style.transition = 'none';
       
       // Prevent default untuk mencegah scroll pada header
@@ -554,13 +553,13 @@ function enableSwipeToDismiss() {
 function addSwipeIndicator(header) {
   // Tambahkan garis kecil di tengah header sebagai indicator
   const indicator = document.createElement('div');
-  indicator.style.cssText = 
+  indicator.style.cssText = `
     width: 40px;
     height: 7px;
     background: #ccc;
     border-radius: 12px;
     margin: 0px auto 0.001rem;
-  ;
+  `;
   
   // Insert di awal header
   header.insertBefore(indicator, header.firstChild);
@@ -581,10 +580,10 @@ function updateMagnetViz(B) {
     const dx    = -sign * maxShift * t * amplitudeScale;
     const delay = col * interval;
 
-    el.style.setProperty('--ang', ${ang}deg);
-    el.style.setProperty('--dx',  ${dx}px);
-    el.style.setProperty('--delay', ${delay}s);
-    el.style.setProperty('--duration', ${duration}s);
+    el.style.setProperty('--ang', `${ang}deg`);
+    el.style.setProperty('--dx',  `${dx}px`);
+    el.style.setProperty('--delay', `${delay}s`);
+    el.style.setProperty('--duration', `${duration}s`);
   });
 }
 
@@ -633,10 +632,10 @@ function updateFieldMeter() {
   const By = B * Math.sin(rad);
 
   // update UI
-  fieldMeterB.textContent     = ${B.toFixed(2)} G;
-  fieldMeterBx.textContent    = ${Bx.toFixed(2)} G;
-  fieldMeterBy.textContent    = ${By.toFixed(2)} G;
-  fieldMeterTheta.textContent = ${theta.toFixed(0)}°;
+  fieldMeterB.textContent     = `${B.toFixed(2)} G`;
+  fieldMeterBx.textContent    = `${Bx.toFixed(2)} G`;
+  fieldMeterBy.textContent    = `${By.toFixed(2)} G`;
+  fieldMeterTheta.textContent = `${theta.toFixed(0)}°`;
 }
 
 function toggleFieldMeter() {
@@ -645,8 +644,8 @@ function toggleFieldMeter() {
   if (fieldMeterEnabled) {
     // center it
     const bnds = containerRect();
-    fieldMeter.style.left = ${(bnds.width - fieldMeter.offsetWidth)/2}px;
-    fieldMeter.style.top  = ${(bnds.height - fieldMeter.offsetHeight)/2}px;
+    fieldMeter.style.left = `${(bnds.width - fieldMeter.offsetWidth)/2}px`;
+    fieldMeter.style.top  = `${(bnds.height - fieldMeter.offsetHeight)/2}px`;
     updateFieldMeter();
   }
 }
@@ -672,8 +671,8 @@ function onDrag(e) {
   // constrain
   nx = Math.max(0, Math.min(nx, bnds.width  - fieldMeter.offsetWidth));
   ny = Math.max(0, Math.min(ny, bnds.height - fieldMeter.offsetHeight));
-  fieldMeter.style.left = ${nx}px;
-  fieldMeter.style.top  = ${ny}px;
+  fieldMeter.style.left = `${nx}px`;
+  fieldMeter.style.top  = `${ny}px`;
   updateFieldMeter();
   e.preventDefault();
 }
