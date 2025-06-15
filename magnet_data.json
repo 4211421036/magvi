@@ -1,1 +1,1 @@
-{"config":{"sensorType":"SS49E","analogPin":13,"measurementInterval":1000,"uploadInterval":1000},"uptime":9,"readings":[{"timestamp":5,"magneticField":-0.797057},{"timestamp":8,"magneticField":-0.797057}]}
+{"config":{"sensorType":"SS49E","analogPin":13,"measurementInterval":1000,"uploadInterval":1000},"uptime":12,"readings":[{"timestamp":5,"magneticField":-0.797057},{"timestamp":8,"magneticField":-0.797057},{"timestamp":11,"magneticField":-0.797057}]}
